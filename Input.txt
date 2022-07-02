@@ -1,0 +1,16 @@
+﻿a->b
+b->a
+b->c
+c->b
+c->d
+c->e
+d->c
+d->e
+d->f
+d->g
+e->c
+e->d
+e->f
+f->d
+f->e
+g->d

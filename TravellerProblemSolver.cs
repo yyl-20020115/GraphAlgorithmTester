@@ -1,0 +1,99 @@
+﻿using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+
+namespace GraphAlgorithmTester;
+
+public class TravellerProblemSolver
+{
+    public SortedDictionary<string, SNode> Nodes { get; } = new();
+    public HashSet<SEdge> Edges { get; } = new();
+
+
+    public record class Path(List<SNode> Nodes)
+    {
+        public List<SNode> NodeCopies { get;  set; } = new();
+        public SNode? Start => this.Nodes.FirstOrDefault();
+        public SNode? End => this.Nodes.LastOrDefault();
+        public double Length { get; set; }
+        public bool HasVisited(SNode node) => this.Nodes.Any(n => n.Name == node.Name);
+
+        public bool IsShort(HashSet<string> names)
+        {
+            return this.Nodes.Count<names.Count+1 && names.Any(name => this.Nodes.Count(n => n.Name == name) >= 2);
+        }
+        public Path Copy()=>
+            new (this.Nodes.ToList()) { Length = this.Length, NodeCopies = this.NodeCopies.ToList() };
+        public override string ToString() => string.Join(" -> ", this.NodeCopies) + $" = {this.Length}";
+    }
+
+    public void Solve(string path = "Output.txt")
+    {
+        if (Nodes.Count > 0 && Edges.Count > 0)
+        {
+            using var writer = new StreamWriter(path);
+            writer.WriteLine("Total {0} nodes", Nodes.Count);
+            writer.WriteLine("Total {0} edges", Edges.Count);
+
+            var names = Nodes.Keys.ToHashSet();
+            var start = Nodes.First().Value;
+            var paths = new List<Path>();
+            var solutions = new List<Path>();
+
+            var outs = this.Edges.Where(e => e.Origin == start).ToList();
+            foreach(var _out in outs)
+            {
+                paths.Add(new Path(
+                    new List<SNode>() { start, _out.Target as SNode }) {
+                        Length=(_out as SEdge).Length, 
+                        NodeCopies = new List<SNode>() { start.Copy(),(_out.Target as SNode).Copy((_out as SEdge).Length) }
+                        });
+            }
+            //NP=P
+            int step = 0;
+            while (step++<names.Count)
+            {
+                paths.RemoveAll(p => p.Nodes.Count <= step || p.IsShort(names));
+                
+                var copy = paths.ToArray();
+                foreach (var _path in copy)
+                {
+                    var current = _path.End;
+                    outs = this.Edges.Where(e => e.Origin == current).ToList();
+                    foreach (var _out in outs)
+                    {
+                        var se = _out as SEdge;
+                        var sn = _out.Target as SNode;
+                        if ((_path.HasVisited(sn) && sn.Name == start.Name) ||!_path.HasVisited(sn))
+                        {
+                            var branch = _path.Copy() ;
+                            var snode = sn.Copy();
+                            snode.Offset = se.Length;
+                            branch.Length += se.Length;
+                            branch.Nodes.Add(sn);
+                            branch.NodeCopies.Add(snode);
+                            paths.Add(branch);
+                        }
+                    }
+                }
+            }
+            paths.Sort((x, y) => (int)(x.Length-y.Length));
+            if (paths.Count > 0)
+            {
+                var d0 = paths[0].Length;
+                for(int i = 0; i < paths.Count; i++)
+                {
+                    if(paths[i].Length <= d0)
+                    {
+                        solutions.Add(paths[i]);
+                    }
+                }
+            }
+            writer.WriteLine($"Total {solutions.Count} solutions");
+            foreach(var solution in solutions)
+            {
+                writer.WriteLine($"    {solution}");
+            }
+        }
+    }
+}

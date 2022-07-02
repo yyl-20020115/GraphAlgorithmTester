@@ -1,0 +1,17 @@
+﻿# Hamiltonian Cycle Path: chfigjdeabc
+e-a
+e-f
+e-d
+a-g
+a-b
+b-h
+b-c
+h-f
+h-j
+h-c
+g-i
+g-j
+f-i
+c-i
+c-d
+d-j
