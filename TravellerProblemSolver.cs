@@ -6,22 +6,18 @@ namespace GraphAlgorithmTester;
 
 public class TravellerProblemSolver
 {
-    public SortedDictionary<string, SNode> Nodes { get; } = new();
-    public HashSet<SEdge> Edges { get; } = new();
-
+    public SortedDictionary<string, SNode> Nodes = new();
+    public HashSet<SEdge> Edges = new();
 
     public record class Path(List<SNode> Nodes)
     {
-        public List<SNode> NodeCopies { get;  set; } = new();
-        public SNode? Start => this.Nodes.FirstOrDefault();
-        public SNode? End => this.Nodes.LastOrDefault();
-        public double Length { get; set; }
+        public List<SNode> NodeCopies = new();
+        public SNode Start => this.Nodes.FirstOrDefault();
+        public SNode End => this.Nodes.LastOrDefault();
+        public int Length = 0;
         public bool HasVisited(SNode node) => this.Nodes.Any(n => n.Name == node.Name);
 
-        public bool IsShort(HashSet<string> names)
-        {
-            return this.Nodes.Count<names.Count+1 && names.Any(name => this.Nodes.Count(n => n.Name == name) >= 2);
-        }
+        public bool IsPreTerminated(HashSet<string> names) => this.Nodes.Count < names.Count + 1 && names.Any(name => this.Nodes.Count(n => n.Name == name) >= 2);
         public Path Copy()=>
             new (this.Nodes.ToList()) { Length = this.Length, NodeCopies = this.NodeCopies.ToList() };
         public override string ToString() => string.Join(" -> ", this.NodeCopies) + $" = {this.Length}";
@@ -43,17 +39,17 @@ public class TravellerProblemSolver
             var outs = this.Edges.Where(e => e.O == start).ToList();
             foreach(var _out in outs)
             {
-                paths.Add(new Path(
-                    new List<SNode>() { start, _out.T }) {
+                paths.Add(new (
+                    new () { start, _out.T }) {
                         Length=_out.Length, 
-                        NodeCopies = new List<SNode>() { start.Copy(),_out.T.Copy(_out.Length) }
+                        NodeCopies = new () { start.Copy(),_out.T.Copy(_out.Length) }
                         });
             }
             //NP=P
             int step = 0;
             while (step++<names.Count)
             {
-                paths.RemoveAll(p => p.Nodes.Count <= step || p.IsShort(names));
+                paths.RemoveAll(p => p.Nodes.Count <= step || p.IsPreTerminated(names));
                 
                 var copy = paths.ToArray();
                 foreach (var _path in copy)

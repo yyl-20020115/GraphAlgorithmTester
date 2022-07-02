@@ -5,13 +5,13 @@ namespace GraphAlgorithmTester;
 
 public static class Utils
 {
-    public static void BuildGraph(string path, Dictionary<string, SNode> nodes, HashSet<SEdge> edges)
+    public static void BuildGraph(string path, SortedDictionary<string, SNode> nodes, HashSet<SEdge> edges)
     {
         using var reader = new StreamReader(path);
         while (reader.ReadLine() is string line)
         {
             if ((line = line.Trim()).StartsWith('#')) continue;
-            var dn = 0.0;
+            var dn = 0;
             var p = line.IndexOf("->"); //directional
             if (p >= 0) //this is edge
             {
@@ -22,7 +22,7 @@ public static class Utils
                 {
                     var dt = st[(sp + 1)..];
                     st = st[..(sp)];
-                    if (double.TryParse(dt, out dn))
+                    if (int.TryParse(dt, out dn))
                     {
                         //ok
                     }
@@ -42,7 +42,7 @@ public static class Utils
                 {
                     var dt = st[(sp + 1)..];
                     st = st[..(sp)];
-                    if (double.TryParse(dt, out dn))
+                    if (int.TryParse(dt, out dn))
                     {
                         //ok
                     }
@@ -61,8 +61,5 @@ public static class Utils
                     nodes.Add(line, n = new SNode(line));
             }
         }
-
-
     }
-
 }
