@@ -9,10 +9,11 @@ public static class Program
     {
         Environment.CurrentDirectory += "..\\..\\..\\..";
 
-        var ts = new TravellerProblemSolver();
-        Utils.BuildGraph("CityGraph.txt", ts.Nodes, ts.Edges);
+        var solver = new TravellerProblemSolver();
+
+        Utils.BuildGraph("CityGraphInput.txt", solver.Nodes, solver.Edges);
 
         using var writer = new StreamWriter("CityGraphResult.txt");
-        ts.Solve(writer);
+        solver.Solve(writer);
     }
 }

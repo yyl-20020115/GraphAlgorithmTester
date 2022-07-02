@@ -10,9 +10,14 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Remove="HamiltonianCycle.png" />
+    <None Remove="HamiltonianCycle.txt" />
+    <None Remove="HamiltonianCycle1.txt" />
+    <None Remove="HamiltonianCycle2.txt" />
     <None Remove="Input.txt" />
     <None Remove="Output.txt" />
     <None Remove="Readme.txt" />
+    <None Remove="TestGraph.txt" />
   </ItemGroup>
 
 </Project>
