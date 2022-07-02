@@ -2,7 +2,7 @@
 
 public class SNode
 {
-    public string Name ="";
+    public string Name = "";
     public int Offset = 0;
 
     public SNode(string Name = "")

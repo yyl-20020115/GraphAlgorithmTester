@@ -18,16 +18,15 @@ public class TravellerProblemSolver
         public bool HasVisited(SNode node) => this.Nodes.Any(n => n.Name == node.Name);
 
         public bool IsPreTerminated(HashSet<string> names) => this.Nodes.Count < names.Count + 1 && names.Any(name => this.Nodes.Count(n => n.Name == name) >= 2);
-        public Path Copy()=>
-            new (this.Nodes.ToList()) { Length = this.Length, NodeCopies = this.NodeCopies.ToList() };
+        public Path Copy() =>
+            new(this.Nodes.ToList()) { Length = this.Length, NodeCopies = this.NodeCopies.ToList() };
         public override string ToString() => string.Join(" -> ", this.NodeCopies) + $" = {this.Length}";
     }
 
-    public void Solve(string path = "Output.txt")
+    public void Solve(TextWriter writer)
     {
         if (Nodes.Count > 0 && Edges.Count > 0)
         {
-            using var writer = new StreamWriter(path);
             writer.WriteLine("Total {0} nodes", Nodes.Count);
             writer.WriteLine("Total {0} edges", Edges.Count);
 
@@ -37,32 +36,31 @@ public class TravellerProblemSolver
             var solutions = new List<Path>();
 
             var outs = this.Edges.Where(e => e.O == start).ToList();
-            foreach(var _out in outs)
+            foreach (var _out in outs)
             {
-                paths.Add(new (
-                    new () { start, _out.T }) {
-                        Length=_out.Length, 
-                        NodeCopies = new () { start.Copy(),_out.T.Copy(_out.Length) }
-                        });
+                paths.Add(new(
+                    new() { start, _out.T })
+                {
+                    Length = _out.Length,
+                    NodeCopies = new() { start.Copy(), _out.T.Copy(_out.Length) }
+                });
             }
+
             //NP=P
             int step = 0;
-            while (step++<names.Count)
+            while (step++ < names.Count)
             {
                 paths.RemoveAll(p => p.Nodes.Count <= step || p.IsPreTerminated(names));
-                
-                var copy = paths.ToArray();
-                foreach (var _path in copy)
+                foreach (var _path in paths.ToArray())
                 {
                     var current = _path.End;
-                    outs = this.Edges.Where(e => e.O == current).ToList();
-                    foreach (var _out in outs)
+                    foreach (var _out in this.Edges.Where(e => e.O == current))
                     {
                         var se = _out;
                         var sn = _out.T;
-                        if ((_path.HasVisited(sn) && sn.Name == start.Name) ||!_path.HasVisited(sn))
+                        if ((_path.HasVisited(sn) && sn.Name == start.Name) || !_path.HasVisited(sn))
                         {
-                            var branch = _path.Copy() ;
+                            var branch = _path.Copy();
                             var snode = sn.Copy();
                             snode.Offset = se.Length;
                             branch.Length += se.Length;
@@ -73,20 +71,20 @@ public class TravellerProblemSolver
                     }
                 }
             }
-            paths.Sort((x, y) => (int)(x.Length-y.Length));
+            paths.Sort((x, y) => x.Length - y.Length);
             if (paths.Count > 0)
             {
                 var d0 = paths[0].Length;
-                for(int i = 0; i < paths.Count; i++)
+                for (int i = 0; i < paths.Count; i++)
                 {
-                    if(paths[i].Length <= d0)
+                    if (paths[i].Length <= d0)
                     {
                         solutions.Add(paths[i]);
                     }
                 }
             }
             writer.WriteLine($"Total {solutions.Count} solutions");
-            foreach(var solution in solutions)
+            foreach (var solution in solutions)
             {
                 writer.WriteLine($"    {solution}");
             }

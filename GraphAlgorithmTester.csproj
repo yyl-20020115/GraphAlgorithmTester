@@ -9,4 +9,10 @@
     <Compile Remove="GraphLoopSolver.cs" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Remove="Input.txt" />
+    <None Remove="Output.txt" />
+    <None Remove="Readme.txt" />
+  </ItemGroup>
+
 </Project>

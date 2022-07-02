@@ -13,9 +13,9 @@ public class SEdge
         this.Length = len;
     }
 
-    public SEdge Duplicate() => new (this.O, this.T,this.Length);
+    public SEdge Duplicate() => new(this.O, this.T, this.Length);
 
     public override string ToString() => O.ToString() + "->" + T.ToString();
 
-    public SEdge Reverse() => new (this.T, this.O,this.Length);
+    public SEdge Reverse() => new(this.T, this.O, this.Length);
 }

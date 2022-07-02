@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 
 namespace GraphAlgorithmTester;
 
@@ -11,6 +12,7 @@ public static class Program
         var ts = new TravellerProblemSolver();
         Utils.BuildGraph("CityGraph.txt", ts.Nodes, ts.Edges);
 
-        ts.Solve();
+        using var writer = new StreamWriter("CityGraphResult.txt");
+        ts.Solve(writer);
     }
 }
