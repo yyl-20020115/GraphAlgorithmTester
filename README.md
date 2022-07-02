@@ -8,5 +8,7 @@ Then you get the solution of the traveller problem.
 
 It can be treated as a proof for "NP=P".
 
+READ THE CODE FOR DETAILS! (C#)
+
 Best Regards,
 Yilin
