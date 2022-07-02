@@ -40,13 +40,13 @@ public class TravellerProblemSolver
             var paths = new List<Path>();
             var solutions = new List<Path>();
 
-            var outs = this.Edges.Where(e => e.Origin == start).ToList();
+            var outs = this.Edges.Where(e => e.O == start).ToList();
             foreach(var _out in outs)
             {
                 paths.Add(new Path(
-                    new List<SNode>() { start, _out.Target as SNode }) {
-                        Length=(_out as SEdge).Length, 
-                        NodeCopies = new List<SNode>() { start.Copy(),(_out.Target as SNode).Copy((_out as SEdge).Length) }
+                    new List<SNode>() { start, _out.T }) {
+                        Length=_out.Length, 
+                        NodeCopies = new List<SNode>() { start.Copy(),_out.T.Copy(_out.Length) }
                         });
             }
             //NP=P
@@ -59,11 +59,11 @@ public class TravellerProblemSolver
                 foreach (var _path in copy)
                 {
                     var current = _path.End;
-                    outs = this.Edges.Where(e => e.Origin == current).ToList();
+                    outs = this.Edges.Where(e => e.O == current).ToList();
                     foreach (var _out in outs)
                     {
-                        var se = _out as SEdge;
-                        var sn = _out.Target as SNode;
+                        var se = _out;
+                        var sn = _out.T;
                         if ((_path.HasVisited(sn) && sn.Name == start.Name) ||!_path.HasVisited(sn))
                         {
                             var branch = _path.Copy() ;

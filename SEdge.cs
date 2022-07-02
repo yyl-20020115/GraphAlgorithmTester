@@ -5,9 +5,6 @@ public class SEdge
     public SNode O { get; set; }
     public SNode T { get; set; }
     public double Length { get; set; }
-    public object Origin => this.O;
-
-    public object Target => this.T;
 
     public SEdge(SNode o, SNode t, double len = 0)
     {
