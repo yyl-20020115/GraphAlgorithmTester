@@ -1,6 +1,8 @@
 # GraphAlgorithmTester
 NP=P as proven by traveller problem
 
+Both HamitonianCycleProblem and TravellerProblem have been solved by this algorithm.
+
 HOW THIS ALGORITHM WORKS?
 
 Just simply follow the graph parallelly and split the path when there is a branch point(node).
