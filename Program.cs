@@ -9,11 +9,15 @@ public static class Program
     {
         Environment.CurrentDirectory += "..\\..\\..\\..";
 
-        var solver = new TravellerProblemSolver();
+        var traveller = new TravellerProblemSolver();
+        var hamilton = new HamitonianCycleProblemSolver();
 
-        Utils.BuildGraph("CityGraphInput.txt", solver.Nodes, solver.Edges);
+        ProblemSolver.BuildGraph("CityGraphInput.txt", traveller.Nodes, traveller.Edges);
+        ProblemSolver.BuildGraph("HamiltonianCycle.txt", hamilton.Nodes, hamilton.Edges);
 
-        using var writer = new StreamWriter("CityGraphResult.txt");
-        solver.Solve(writer);
+        using var writer = new StreamWriter("Result.txt");
+        traveller.Solve(writer);
+        hamilton.Solve(writer);
+
     }
 }

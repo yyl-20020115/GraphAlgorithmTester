@@ -4,14 +4,14 @@ using System.Linq;
 
 namespace GraphAlgorithmTester;
 
-public class TravellerProblemSolver : ProblemSolver
+public class HamitonianCycleProblemSolver :ProblemSolver
 {
+
     public override void Solve(TextWriter writer, string start_name = null)
     {
         if (Nodes.Count > 0 && Edges.Count > 0)
         {
-            writer.WriteLine("TravellerProblem:");
-
+            writer.WriteLine("HamitonianCycleProblem:");
             writer.WriteLine("  Total {0} nodes", Nodes.Count);
             writer.WriteLine("  Total {0} edges", Edges.Count);
 
@@ -29,8 +29,7 @@ public class TravellerProblemSolver : ProblemSolver
                 paths.Add(new(
                     new() { start, _out.T })
                 {
-                    Length = _out.Length,
-                    NodeCopies = new() { start.Copy(), _out.T.Copy(_out.Length) }
+                    NodeCopies = new() { start.Copy(), _out.T.Copy() }
                 });
             }
 
@@ -50,8 +49,6 @@ public class TravellerProblemSolver : ProblemSolver
                         {
                             var branch = _path.Copy();
                             var snode = sn.Copy();
-                            snode.Offset = se.Length;
-                            branch.Length += se.Length;
                             branch.Nodes.Add(sn);
                             branch.NodeCopies.Add(snode);
                             paths.Add(branch);
@@ -59,24 +56,28 @@ public class TravellerProblemSolver : ProblemSolver
                     }
                 }
             }
-            paths.Sort((x, y) => x.Length.GetValueOrDefault() - y.Length.GetValueOrDefault());
             if (paths.Count > 0)
             {
-                var d0 = paths[0].Length;
-                for (int i = 0; i < paths.Count; i++)
-                {
-                    if (paths[i].Length <= d0)
-                    {
-                        solutions.Add(paths[i]);
-                    }
-                }
+                solutions.AddRange(paths);
             }
+            var compacts = solutions.Distinct(new Path.UndEq()).ToList();
+
             writer.WriteLine($"  Total {solutions.Count} solutions:");
             foreach (var solution in solutions)
             {
                 writer.WriteLine($"    {solution}");
             }
+
+            writer.WriteLine($"  Total {compacts.Count} compact solutions:");
+
+            foreach (var compact in compacts)
+            {
+                writer.WriteLine($"    {compact.ToString(true)}");
+            }
+
+
             writer.WriteLine();
         }
     }
+
 }

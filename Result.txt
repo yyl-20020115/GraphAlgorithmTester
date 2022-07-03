@@ -1,0 +1,16 @@
+TravellerProblem:
+  Total 7 nodes
+  Total 32 edges
+  Total 2 solutions:
+    A -> G(30) -> F(30) -> E(20) -> D(40) -> C(40) -> B(30) -> A(35) = 225
+    A -> B(35) -> C(30) -> D(40) -> E(40) -> F(20) -> G(30) -> A(30) = 225
+
+HamitonianCycleProblem:
+  Total 20 nodes
+  Total 40 edges
+  Total 2 solutions:
+    1 -> 5 -> 19 -> 16 -> 11 -> 7 -> 3 -> 2 -> 4 -> 10 -> 14 -> 13 -> 9 -> 8 -> 12 -> 15 -> 17 -> 18 -> 20 -> 6 -> 1
+    1 -> 6 -> 20 -> 18 -> 17 -> 15 -> 12 -> 8 -> 9 -> 13 -> 14 -> 10 -> 4 -> 2 -> 3 -> 7 -> 11 -> 16 -> 19 -> 5 -> 1
+  Total 1 compact solutions:
+    1 - 5 - 19 - 16 - 11 - 7 - 3 - 2 - 4 - 10 - 14 - 13 - 9 - 8 - 12 - 15 - 17 - 18 - 20 - 6 - 1
+

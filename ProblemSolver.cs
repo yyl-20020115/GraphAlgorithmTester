@@ -3,8 +3,14 @@ using System.IO;
 
 namespace GraphAlgorithmTester;
 
-public static class Utils
+public abstract class ProblemSolver
 {
+    public SortedDictionary<string, SNode> Nodes = new();
+    public HashSet<SEdge> Edges = new();
+
+    public abstract void Solve(TextWriter writer, string start_name);
+
+
     public static void BuildGraph(string path, SortedDictionary<string, SNode> nodes, HashSet<SEdge> edges)
     {
         using var reader = new StreamReader(path);
@@ -20,8 +26,8 @@ public static class Utils
                 var sp = st.IndexOf(':');
                 if (sp >= 0)
                 {
-                    var dt = st[(sp + 1)..];
-                    st = st[..(sp)];
+                    var dt = st[(sp + 1)..].Trim();
+                    st = st[..(sp)].Trim();
                     if (int.TryParse(dt, out dn))
                     {
                         //ok
@@ -40,14 +46,13 @@ public static class Utils
                 var sp = st.IndexOf(':');
                 if (sp >= 0)
                 {
-                    var dt = st[(sp + 1)..];
-                    st = st[..(sp)];
+                    var dt = st[(sp + 1)..].Trim();
+                    st = st[..(sp)].Trim();
                     if (int.TryParse(dt, out dn))
                     {
                         //ok
                     }
                 }
-
                 if (!nodes.TryGetValue(so, out var o))
                     nodes.Add(so, o = new SNode(so));
                 if (!nodes.TryGetValue(st, out var t))
@@ -55,11 +60,12 @@ public static class Utils
                 edges.Add(new SEdge(o, t, dn));
                 edges.Add(new SEdge(t, o, dn));
             }
-            else //this is node 
+            else if(line.Length>0) //this is node 
             {
                 if (!nodes.TryGetValue(line, out var n))
                     nodes.Add(line, n = new SNode(line));
             }
         }
     }
+
 }
