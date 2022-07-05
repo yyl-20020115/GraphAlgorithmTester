@@ -22,11 +22,8 @@ public class MaxFlowsProblemResolver : ProblemSolver
             if (!Nodes.TryGetValue((end_name ??= Nodes.Last().Key), out var end))
                 end = Nodes.Last().Value;
 
-            foreach(var edge in Edges.Where(e => e.O == start))
-            {
-                //first capacity is calculated backwards
-                start.Capacity += edge.Capacity;
-            }
+            //first capacity is calculated backwards
+            start.Capacity = Edges.Where(e => e.O == start).Sum(e => e.Capacity);
 
             var all = new HashSet<SNode>();
             var nodes = new HashSet<SNode>() { start};
@@ -92,10 +89,11 @@ public class MaxFlowsProblemResolver : ProblemSolver
                 //max flows value.
                 for (int j = edge.O.LevelIndex + 1; j < edge.T.LevelIndex; j++)
                 {
-                    var snode = new SNode($"FAKE({edge.O}-{edge.T})");
-                    snode.Capacity = edge.Capacity;
-                    snode.LevelIndex = j;
-                    levels[j].Add(snode);
+                    levels[j].Add(new($"FAKE({edge.O}-{edge.T})")
+                    {
+                        Capacity = edge.Capacity,
+                        LevelIndex = j
+                    });
                 }
             }
 
