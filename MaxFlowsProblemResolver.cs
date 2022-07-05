@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
@@ -23,7 +24,8 @@ public class MaxFlowsProblemResolver : ProblemSolver
                 end = Nodes.Last().Value;
 
             //first capacity is calculated backwards
-            start.Capacity = Edges.Where(e => e.O == start).Sum(e => e.Capacity);
+            start.OutCapacity = start.InCapacity = Edges.Where(e => e.O == start).Sum(e => e.Capacity);
+            end.OutCapacity = end.InCapacity = Edges.Where(e => e.T == end).Sum(e => e.Capacity);
 
             var all = new HashSet<SNode>();
             var nodes = new HashSet<SNode>() { start};
@@ -37,8 +39,13 @@ public class MaxFlowsProblemResolver : ProblemSolver
                     foreach (var edge in this.Edges.Where(e => e.O == node))
                     {
                         var t = edge.T;
-                        t.Capacity 
-                            = this.Edges.Where(e => e.T == t).Sum(e => e.Capacity);
+                        if (t != end &&t!=start)
+                        {
+                            t.InCapacity
+                                = this.Edges.Where(e => e.T == t).Sum(e => e.Capacity);
+                            t.OutCapacity
+                                = this.Edges.Where(e => e.O == t).Sum(e => e.Capacity);
+                        }
                         t.LevelIndex = level_index;
                         nexts.Add(t);
                     }
@@ -91,15 +98,43 @@ public class MaxFlowsProblemResolver : ProblemSolver
                 {
                     levels[j].Add(new($"FAKE({edge.O}-{edge.T})")
                     {
-                        Capacity = edge.Capacity,
+                        InCapacity = edge.Capacity,
+                        OutCapacity = edge.Capacity,
                         LevelIndex = j
                     });
                 }
             }
+            var inps = new List<int>(levels.Select(l=>l.Sum(n=>n.InCapacity)));
+            //fix locally: only focus on nodes with DeltaCapacity<0
+            //and substract the delta from the previous level.
+            for (var i = levels.Count - 2; i > 0; i--)
+            {
+                var level = levels[i];
+                int delta = level.Where(n => n.DeltaCapacity < 0).Sum(n => n.DeltaCapacity);
+                if (delta < 0)
+                {
+                    inps[i - 1] += delta;
+                }
+            }
             //find the narrowest part of the flow stream and get the flow value
-            var maxflows = levels.Min(level => level.Sum(node => node.Capacity));
-
-            writer.WriteLine($"    The max flows value is {maxflows}");
+            var maxflows = inps.Min();
+            int it = 0;
+            writer.WriteLine($"  Total {inps.Count} levels:");
+            foreach (var level in levels)
+            {
+                writer.Write($"    Level {it} flows = {inps[it]}: ");
+                it++;
+                var first = true;
+                foreach(var n in level)
+                {
+                    if (!first) writer.Write(", ");
+                    writer.Write(
+                        $"{n.Name} (IN:{n.InCapacity}, OUT:{n.OutCapacity}, DELTA:{n.DeltaCapacity})");
+                    first = false;
+                }
+                writer.WriteLine();
+            }
+            writer.WriteLine($"  The max flows value is {maxflows}");
             writer.WriteLine();
         }
     }

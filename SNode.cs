@@ -4,9 +4,10 @@ public class SNode
 {
     public string Name = "";
     public int? Offset = null;
-    public int Capacity = 0;
+    public int InCapacity = 0;
+    public int OutCapacity = 0;
     public int LevelIndex = 0;
-
+    public int DeltaCapacity => this.OutCapacity - this.InCapacity;
     public SNode(string Name = "")
     {
         this.Name = Name;

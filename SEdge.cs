@@ -18,7 +18,7 @@ public class SEdge
     public SEdge Duplicate() => new(this.O, this.T, this.Weight);
 
     public override string ToString() =>  
-        (this.WithWeight?$"{0}-[{this.Weight}]->{T}":$"{O}->{T}");
+        (this.WithWeight?$"{this.O}-[{this.Weight}]->{this.T}":$"{this.O}->{this.T}");
 
     public SEdge Reverse() => new(this.T, this.O, this.Weight);
 }
