@@ -7,7 +7,7 @@ namespace GraphAlgorithmTester;
 public class HamitonianCycleProblemSolver :ProblemSolver
 {
 
-    public override void Solve(TextWriter writer, string start_name = null)
+    public override void Solve(TextWriter writer, string start_name = null, string end_name = null)
     {
         if (Nodes.Count > 0 && Edges.Count > 0)
         {
@@ -19,6 +19,9 @@ public class HamitonianCycleProblemSolver :ProblemSolver
 
             if (!Nodes.TryGetValue((start_name ??= Nodes.First().Key), out var start))
                 start = Nodes.First().Value;
+
+            if (!Nodes.TryGetValue((end_name ??= Nodes.First().Key), out var end))
+                end = Nodes.First().Value;
 
             var paths = new List<Path>();
             var solutions = new List<Path>();

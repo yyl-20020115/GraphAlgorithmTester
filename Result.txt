@@ -14,3 +14,8 @@ HamitonianCycleProblem:
   Total 1 compact solutions:
     1 - 5 - 19 - 16 - 11 - 7 - 3 - 2 - 4 - 10 - 14 - 13 - 9 - 8 - 12 - 15 - 17 - 18 - 20 - 6 - 1
 
+MaxFlowsProblem:
+  Total 4 nodes
+  Total 5 edges
+    The max flows value is 10
+

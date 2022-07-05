@@ -4,7 +4,9 @@ public class SNode
 {
     public string Name = "";
     public int? Offset = null;
-    
+    public int Capacity = 0;
+    public int Level = 0;
+
     public SNode(string Name = "")
     {
         this.Name = Name;

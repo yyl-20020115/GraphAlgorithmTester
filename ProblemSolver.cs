@@ -8,10 +8,10 @@ public abstract class ProblemSolver
     public SortedDictionary<string, SNode> Nodes = new();
     public HashSet<SEdge> Edges = new();
 
-    public abstract void Solve(TextWriter writer, string start_name);
+    public abstract void Solve(TextWriter writer, string start_name = null, string end_name = null);
 
 
-    public static void BuildGraph(string path, SortedDictionary<string, SNode> nodes, HashSet<SEdge> edges)
+    public static void BuildGraph(string path, IDictionary<string, SNode> nodes, ISet<SEdge> edges)
     {
         using var reader = new StreamReader(path);
         while (reader.ReadLine() is string line)

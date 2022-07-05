@@ -11,13 +11,15 @@ public static class Program
 
         var traveller = new TravellerProblemSolver();
         var hamilton = new HamitonianCycleProblemSolver();
+        var maxflows = new MaxFlowsProblemResolver();
 
         ProblemSolver.BuildGraph("CityGraphInput.txt", traveller.Nodes, traveller.Edges);
         ProblemSolver.BuildGraph("HamiltonianCycle.txt", hamilton.Nodes, hamilton.Edges);
+        ProblemSolver.BuildGraph("MaxFlows2.txt", maxflows.Nodes, maxflows.Edges);
 
         using var writer = new StreamWriter("Result.txt");
         traveller.Solve(writer);
         hamilton.Solve(writer);
-
+        maxflows.Solve(writer);
     }
 }
