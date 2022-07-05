@@ -18,10 +18,10 @@ MaxFlowsProblem:
   Total 6 nodes: 0,1,2,3,4,5
   Total 8 edges: 0-[11]->1,0-[8]->2,2-[1]->1,2-[11]->4,1-[8]->3,4-[17]->3,3-[19]->5,4-[4]->5
   Total 5 levels:
-    Level 0 flows = 19: 0 (IN:19, OUT:19, DELTA:0)
-    Level 1 flows = 15: 2 (IN:8, OUT:12, DELTA:4), FAKE(0-1) (IN:11, OUT:11, DELTA:0)
-    Level 2 flows = 17: 1 (IN:12, OUT:8, DELTA:-4), 4 (IN:11, OUT:21, DELTA:10)
-    Level 3 flows = 29: 3 (IN:25, OUT:19, DELTA:-6), FAKE(4-5) (IN:4, OUT:4, DELTA:0)
-    Level 4 flows = 23: 5 (IN:23, OUT:23, DELTA:0)
+    Level 0, flows = 19: 0 (IN:19, OUT:19, DELTA:0)
+    Level 1, flows = 15: 2 (IN:8, OUT:12, DELTA:4), FAKE(0-1) (IN:11, OUT:11, DELTA:0)
+    Level 2, flows = 17: 1 (IN:12, OUT:8, DELTA:-4), 4 (IN:11, OUT:21, DELTA:10)
+    Level 3, flows = 29: 3 (IN:25, OUT:19, DELTA:-6), FAKE(4-5) (IN:4, OUT:4, DELTA:0)
+    Level 4, flows = 23: 5 (IN:23, OUT:23, DELTA:0)
   The max flows value is 15
 

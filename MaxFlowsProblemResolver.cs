@@ -105,12 +105,20 @@ public class MaxFlowsProblemResolver : ProblemSolver
                 }
             }
             var inps = new List<int>(levels.Select(l=>l.Sum(n=>n.InCapacity)));
-            //fix locally: only focus on nodes with DeltaCapacity<0
+            //NOTICE: only focus on nodes with DeltaCapacity<0
             //and substract the delta from the previous level.
+            //BTW, first and last nodes are not necessory to be considerred.
             for (var i = levels.Count - 2; i > 0; i--)
             {
                 var level = levels[i];
-                int delta = level.Where(n => n.DeltaCapacity < 0).Sum(n => n.DeltaCapacity);
+                int delta = level.Where(n => n.DeltaCapacity < 0)
+                    .Sum(n => n.DeltaCapacity);
+                //we don't consider further influnce,
+                //because finally we need the min value (capacity) of all bottle necks.
+                //Any previous bottle neck which is wider (more capacity)
+                //we just let it be,
+                //If narrower, it's affected by its previous pipes only,
+                //therefore no need to back-propagate.
                 if (delta < 0)
                 {
                     inps[i - 1] += delta;
@@ -118,12 +126,12 @@ public class MaxFlowsProblemResolver : ProblemSolver
             }
             //find the narrowest part of the flow stream and get the flow value
             var maxflows = inps.Min();
-            int it = 0;
+            int ilevel = 0;
             writer.WriteLine($"  Total {inps.Count} levels:");
             foreach (var level in levels)
             {
-                writer.Write($"    Level {it} flows = {inps[it]}: ");
-                it++;
+                writer.Write($"    Level {ilevel}, flows = {inps[ilevel]}: ");
+                ilevel++;
                 var first = true;
                 foreach(var n in level)
                 {
