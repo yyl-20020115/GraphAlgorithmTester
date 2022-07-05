@@ -15,7 +15,7 @@ public static class Program
 
         ProblemSolver.BuildGraph("CityGraphInput.txt", traveller.Nodes, traveller.Edges);
         ProblemSolver.BuildGraph("HamiltonianCycle.txt", hamilton.Nodes, hamilton.Edges);
-        ProblemSolver.BuildGraph("MaxFlows2.txt", maxflows.Nodes, maxflows.Edges);
+        ProblemSolver.BuildGraph("MaxFlows2.txt", maxflows.Nodes, maxflows.Edges,true);
 
         using var writer = new StreamWriter("Result.txt");
         traveller.Solve(writer);

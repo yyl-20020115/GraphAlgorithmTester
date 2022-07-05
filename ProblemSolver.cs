@@ -11,7 +11,7 @@ public abstract class ProblemSolver
     public abstract void Solve(TextWriter writer, string start_name = null, string end_name = null);
 
 
-    public static void BuildGraph(string path, IDictionary<string, SNode> nodes, ISet<SEdge> edges)
+    public static void BuildGraph(string path, IDictionary<string, SNode> nodes, ISet<SEdge> edges, bool WithWeight=false)
     {
         using var reader = new StreamReader(path);
         while (reader.ReadLine() is string line)
@@ -37,7 +37,7 @@ public abstract class ProblemSolver
                     nodes.Add(so, o = new SNode(so));
                 if (!nodes.TryGetValue(st, out var t))
                     nodes.Add(st, t = new SNode(st));
-                edges.Add(new SEdge(o, t, dn));
+                edges.Add(new SEdge(o, t, dn) { WithWeight= WithWeight });
             }
             else if ((p = line.IndexOf('-')) >= 0)
             {
@@ -57,8 +57,8 @@ public abstract class ProblemSolver
                     nodes.Add(so, o = new SNode(so));
                 if (!nodes.TryGetValue(st, out var t))
                     nodes.Add(st, t = new SNode(st));
-                edges.Add(new SEdge(o, t, dn));
-                edges.Add(new SEdge(t, o, dn));
+                edges.Add(new SEdge(o, t, dn) { WithWeight = WithWeight });
+                edges.Add(new SEdge(t, o, dn) { WithWeight = WithWeight });
             }
             else if(line.Length>0) //this is node 
             {

@@ -12,8 +12,8 @@ public class HamitonianCycleProblemSolver :ProblemSolver
         if (Nodes.Count > 0 && Edges.Count > 0)
         {
             writer.WriteLine("HamitonianCycleProblem:");
-            writer.WriteLine("  Total {0} nodes", Nodes.Count);
-            writer.WriteLine("  Total {0} edges", Edges.Count);
+            writer.WriteLine("  Total {0} nodes: {1}", Nodes.Count, string.Join(',', this.Nodes.Values));
+            writer.WriteLine("  Total {0} edges: {1}", Edges.Count, string.Join(',', this.Edges));
 
             var names = Nodes.Keys.ToHashSet();
 
