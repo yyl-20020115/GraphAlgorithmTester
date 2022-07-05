@@ -82,7 +82,7 @@ public class MaxFlowsProblemResolver : ProblemSolver
             }
             foreach (var edge in this.Edges.Where(
                 //check edge to avoid involving loop nodes
-                e => all.Contains(e.O) && all.Contains(e.T)).ToArray())
+                e => all.Contains(e.O) && all.Contains(e.T)))
             {
                 //Insert fake nodes to ensure flows connected
                 //We don't actually need to build edges since we just need the 
@@ -96,8 +96,8 @@ public class MaxFlowsProblemResolver : ProblemSolver
                     });
                 }
             }
-
-            var maxflows = levels.Min(n => n.Sum(s => s.Capacity));
+            //find the narrowest part of the flow stream and get the flow value
+            var maxflows = levels.Min(level => level.Sum(node => node.Capacity));
 
             writer.WriteLine($"    The max flows value is {maxflows}");
             writer.WriteLine();
