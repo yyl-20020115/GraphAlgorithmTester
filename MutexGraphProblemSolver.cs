@@ -8,8 +8,6 @@ public class MutexGraphProblemSolver : ProblemSolver
 {
     public override void Solve(TextWriter writer, string start_name = null, string end_name = null)
     {
-        //# 元素=[1,2,3,4,5,6,7,8,9] 互斥=[(1,4),(2,5),(1,5),(5,6),(7,8),(3,9),(2,8),(4,5)]
-        //# 把元素组成 N 个组, 保证互斥元素不在同一个组里, 并且 N 最小
         writer.WriteLine("MutexGraphProblem:");
         if (Nodes.Count < 1 || Edges.Count < 1)
         {
@@ -26,8 +24,19 @@ public class MutexGraphProblemSolver : ProblemSolver
 
             var groups = new Dictionary<HashSet<int>, Dictionary<int, SNodeSet>>();
 
-            foreach(var start in Nodes.Values)
+            var edge_collection = new HashSet<SEdge>();
+
+            foreach (var start in Nodes.Values)
             {
+                if (edge_collection.Count > 0)
+                {
+                    this.Edges.UnionWith(edge_collection);
+                }
+                foreach (var n in this.Nodes.Values)
+                {
+                    n.Offset = null;
+                }
+
                 var nodes = new HashSet<SNode>() { start };
                 var nexts = new HashSet<SNode>();
                 var all = new HashSet<SNode>();
@@ -43,6 +52,10 @@ public class MutexGraphProblemSolver : ProblemSolver
                             var t = edge.T;
                             t.LevelIndex = level_index;
                             nexts.Add(t);
+                            //remove the directional 
+                            edge_collection.UnionWith(
+                                this.Edges.Where(e => e.T == node && e.O == t).ToList()
+                                );
                             //remove the directional 
                             int c = this.Edges.RemoveWhere(e => e.T == node && e.O == t);
                             if (c != 0)
@@ -134,7 +147,7 @@ public class MutexGraphProblemSolver : ProblemSolver
                             {
                                 if (node.LevelIndex + 1 < o.LevelIndex)
                                 {
-                                    delayed.Add(idx, o); //delay processing
+                                    delayed.Add(o.LevelIndex, o); //delay processing
                                 }
                                 else if (node.LevelIndex + 1 == o.LevelIndex)
                                 {
