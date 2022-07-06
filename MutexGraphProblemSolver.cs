@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace GraphAlgorithmTester;
 
@@ -25,105 +22,169 @@ public class MutexGraphProblemSolver : ProblemSolver
             writer.WriteLine("  Total {0} edges: {1}", Edges.Count, string.Join(',', this.Edges));
 
             var names = Nodes.Keys.ToHashSet();
-            //first is in
-            if (!Nodes.TryGetValue((start_name ??= Nodes.First().Key), out var start))
-                start = Nodes.First().Value;
-            //last is out
-            
-            start.Color = 0;
 
 
-            var all = new HashSet<SNode>();
-            var nodes = new HashSet<SNode>() { start };
-            var nexts = new HashSet<SNode>();
-            int level_index = 1;
+            var groups = new Dictionary<HashSet<int>, Dictionary<int, SNodeSet>>();
 
-            do
+            foreach(var start in Nodes.Values)
             {
-                foreach (var node in nodes.ToArray())
+                var nodes = new HashSet<SNode>() { start };
+                var nexts = new HashSet<SNode>();
+                var all = new HashSet<SNode>();
+                int level_index = 1;
+
+                do
                 {
-                    foreach (var edge in this.Edges.Where(e => e.O == node))
+                    foreach (var node in nodes.ToArray())
                     {
-                        var t = edge.T;
-                        
-                        t.LevelIndex = level_index;
-                        nexts.Add(t);
+                        var edges = this.Edges.Where(e => e.O == node).ToArray();
+                        foreach (var edge in edges)
+                        {
+                            var t = edge.T;
+                            t.LevelIndex = level_index;
+                            nexts.Add(t);
+                            //remove the directional 
+                            int c = this.Edges.RemoveWhere(e => e.T == node && e.O == t);
+                            if (c != 0)
+                            {
+
+                            }
+                        }
+                    }
+                    level_index++;
+                    nodes = nexts;
+                    nexts = new();
+                    //if level is too many, break the loop in case 
+                    //we find loops in graph
+                } while (nodes.Count > 0 && level_index - 1 < names.Count);
+                if (level_index > names.Count + 1)
+                {
+                    //there is a loop!
+                    //we should break this edge and remove this node.
+                    start.LevelIndex = 0;
+                    var removeds = this.Nodes.Values.Where(n => n.LevelIndex >= names.Count).ToHashSet();
+                    writer.WriteLine($"    Found a loop!");
+                    writer.WriteLine($"      Removed nodes:{string.Join(',', removeds)}");
+                }
+                //Build levels
+                start.LevelIndex = 0;
+                var levels = new List<SNodeSet>();
+
+                for (int i = 0; i < level_index; i++)
+                {
+                    var level = new SNodeSet(this.Nodes.Values.Where(n => n.LevelIndex == i));
+                    if (level.Count > 0)
+                    {
+                        levels.Add(level);
+                        all.UnionWith(level);
                     }
                 }
-                level_index++;
-                nodes = nexts;
-                nexts = new();
-                //if level is too many, break the loop in case 
-                //we find loops in graph
-            } while (nodes.Count > 0 && level_index <= names.Count);
-            if (level_index > names.Count + 1)
-            {
-                //there is a loop!
-                //we should break this edge and remove this node.
-                start.LevelIndex = 0;
-                var removeds = this.Nodes.Values.Where(n => n.LevelIndex >= names.Count).ToHashSet();
-                writer.WriteLine($"    Found a loop!");
-                writer.WriteLine($"      Removed nodes:{string.Join(',', removeds)}");
-            }
-            //Build levels
-            var levels = new List<SNodeSet>();
-            for (int i = 0; i < level_index - 1; i++)
-            {
-                var level = new SNodeSet(this.Nodes.Values.Where(n => n.LevelIndex == i));
-                if (level.Count > 0)
+                if (levels.Count == 0)
                 {
-                    levels.Add(level);
-                    all.UnionWith(level);
+                    writer.WriteLine($"    Unable to build levels!");
+                    return;
                 }
-            }
-            if (levels.Count == 0)
-            {
-                writer.WriteLine($"    Unable to build levels!");
-                return;
-            }
-
-            var pathcolors = new Dictionary<Path, HashSet<int>>();
-            var pathgroups = new Dictionary<Path, Dictionary<int,SNodeSet>>();
-            pathcolors.Add(new Path(start), new() { 0 });
-            //TODO:
-            {
-                var path = default(Path);
-                var colors = pathcolors[path];
-                foreach (var level in levels)
+                int last = 0;
+                int current = last;
+                var colors = new HashSet<int>() { };
+                var delayed = new HashLookups<int, SNode>();
+                for (int idx = 0; idx < levels.Count; idx++)
                 {
+                    if (delayed.TryGetValue(idx, out var delays))
+                    {
+                        foreach (var node in delays)
+                        {
+                            //processing input first
+                            var ins = this.Edges.Where(e => e.T == node).Select(e => e.O).ToList();
+                            var cos = ins.Select(_in => _in.Color is int i ? i : -1).ToHashSet();
+                            cos.Remove(-1);
+                            if (cos.Count < colors.Count)
+                            {
+                                var ccs = colors.ToHashSet();
+                                ccs.ExceptWith(cos);
+                                last = current;
+                                current = ccs.First();
+                            }
+                            else //cos.Count == colors.Count (can not be >)
+                            {
+                                last = current;
+                                cos.Add(current = colors.Count);
+                                colors.Add(colors.Count);
+                            }
+                            node.Offset = current;
+                        }
+                    }
+                    var level = levels[idx];
                     foreach (var node in level)
                     {
-                        var acs = colors.ToHashSet();
-                        var ancester = this.Edges.Where(e => e.T == (node)).Select(e => e.O).ToList();
-                        var ccs = ancester.Select(c => c.Color.GetValueOrDefault()).ToHashSet();
-                        acs.ExceptWith(ccs);
-                        if (acs.FirstOrDefault() is int color)
+                        if (node.Offset == null)
                         {
-                            node.Color = color;
-                        }
-                        else
-                        {
-                            colors.Add(colors.Count);
-                            node.Color = colors.Last();
+                            node.Offset = current;
                         }
                     }
+                    //has to be
+                    colors.Add(current);
+                    var found = false;
+                    foreach (var node in level)
+                    {
+                        var outs = this.Edges.Where(e => e.O == node).Select(e => e.T).ToList();
+                        if (outs.Count > 0)
+                        {
+                            foreach (var o in outs)
+                            {
+                                if (node.LevelIndex + 1 < o.LevelIndex)
+                                {
+                                    delayed.Add(idx, o); //delay processing
+                                }
+                                else if (node.LevelIndex + 1 == o.LevelIndex)
+                                {
+                                    found = true;
+                                }
+                                else
+                                {
+                                    found = true;
+                                }
+                            }
+                        }
+                    }
+                    if (found)
+                    {
+                        var ch = colors.ToHashSet();
+                        ch.Remove(current);
+                        current = ch.Count == 0 ? 1 : ch.First();
+                    }
                 }
-                var groups = pathgroups[path];
+                var group = new Dictionary<int, SNodeSet>();
                 foreach (var c in colors)
                 {
-                    groups[c] = new SNodeSet(this.Nodes.Values.Where(n => n.Color == c));
+                    group[c] = new SNodeSet(this.Nodes.Values.Where(n => n.Color == c));
+                }
+                groups.Add(colors, group);
+            }
+            var groups_ = new Dictionary<HashSet<int>, Dictionary<int, SNodeSet>>();
+            foreach (var kv in groups.DistinctBy(g => g.Key.Count))
+            {
+                groups_.Add(kv.Key, kv.Value);
+            }
+            groups = groups_;
+            if (groups.Count > 0)
+            {               
+                writer.WriteLine($"  NOTICE: the solution is wrong if nodes are not all connected");
+
+                writer.WriteLine($"  Best solution, total {groups.Count} groups:");
+                foreach (var g in groups)
+                {
+                    writer.WriteLine($"    group:");
+                    foreach (var p in g.Value)
+                    {
+                        writer.WriteLine($"      color: {p.Key} {p.Value})");
+                    }
                 }
             }
-            //TODO:
-            var mckey = pathcolors.OrderByDescending(x=>x.Value.Count).Select(x=>x.Key).First();
-            var _groups = pathgroups[mckey];
-            writer.WriteLine($"  Best solution, total {_groups.Count} groups:");
-            foreach(var g in _groups)
+            else
             {
-                writer.WriteLine($"    color:{g.Key}:{g.Value})");
+                writer.WriteLine($"  No solution found!");
             }
-
-            writer.WriteLine();
         }
     }
 }

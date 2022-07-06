@@ -1,0 +1,16 @@
+graph Mutex{
+    node[shape="circle",color=blue];
+    edge[weight=0,penwidth=2,color="green"]
+    rankdir="LR";    
+    1--4
+    2--5
+    1--5
+    5--6
+    7--8
+    3--9
+    2--8
+    4--5
+
+
+
+}

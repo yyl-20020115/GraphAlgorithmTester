@@ -104,6 +104,7 @@ public abstract class ProblemSolver
             if (pres_index < pres_count)
             {
                 parameters[pres_index++] = line;
+                continue;
             }
             var dn = 0;
             var p = line.IndexOf("->"); //directional

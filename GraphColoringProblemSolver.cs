@@ -10,6 +10,8 @@ public class GraphColoringProblemSolver:ProblemSolver
     public string[] Parameters = new string[1];
     public override void Solve(TextWriter writer, string start_name = null, string end_name = null)
     {
+        writer.WriteLine("GraphColoringProblem:");
+
         if (this.Parameters.Length == 1 && this.Parameters[0] is string uc)
         {
             if (uc.StartsWith("C=") &&uc.Length>2)
