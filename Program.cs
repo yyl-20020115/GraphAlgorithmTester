@@ -32,7 +32,8 @@ public static class Program
         maxflows.Solve(writer);
         subset.Solve(writer);
         binary.Solve(writer);
-        mutex.Solve(writer);
+        //this result is wrong, because the graph is not all connected
+        //mutex.Solve(writer);
         coloring.Solve(writer);
     }
 }
