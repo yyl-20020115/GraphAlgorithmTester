@@ -9,9 +9,10 @@ namespace GraphAlgorithmTester;
 
 public class SubsetSumProblemSolver :ProblemSolver
 {
+    
     public override void Solve(TextWriter writer, string start_name = null, string end_name = null)
     {
-        writer.WriteLine("SubsetSumProblem:");
+        writer.WriteLine("SubsetSumProblem:(The graph solution)");
         if (this.Nodes.Count <=1)
         {
             writer.WriteLine("This problem needs at least 2 nodes");
@@ -60,12 +61,10 @@ public class SubsetSumProblemSolver :ProblemSolver
 
             Path? solution = null;
 
-            foreach (var pair in this.Nodes)
+            var paths = new List<Path>();
+            //Make every node to start a new path:
+            foreach(var start in this.Nodes.Values)
             {
-                var start = pair.Value;
-                var end = start;
-                var paths = new List<Path>();
-
                 var outs = this.Edges.Where(e => e.O == start).ToList();
                 foreach (var _out in outs)
                 {
@@ -75,39 +74,44 @@ public class SubsetSumProblemSolver :ProblemSolver
                         NodeCopies = new() { start.Copy(), _out.T.Copy() }
                     });
                 }
+            }
 
-                //NP=P
-                int step = 0;
-                while (step++ < names.Count)
+            //Process with all paths
+            int counts = names.Count;
+            int step = 0;
+            while (step++ < counts)
+            {
+                paths.RemoveAll(p => p.Nodes.Count <= step || p.IsPreTerminated(names));
+                foreach (var _path in paths.ToArray())
                 {
-                    paths.RemoveAll(p => p.Nodes.Count <= step || p.IsPreTerminated(names));
-                    foreach (var _path in paths.ToArray())
+                    if (_path.Length > sum)
                     {
-                        if (_path.CheckLength(sum))
-                        {
-                            //we found the sum and don't needs to 
-                            solution = _path;
-                            goto exit_while;
-                        }
-                        var current = _path.End;
+                        continue;
+                    }
+                    else if (_path.Length == (sum))
+                    {
+                        //we found the sum and don't needs to 
+                        solution = _path;
+                        goto exit_while;
+                    }
+                    var current = _path.End;
 
-                        foreach (var _out in this.Edges.Where(e => e.O == current))
+                    foreach (var _out in this.Edges.Where(e => e.O == current))
+                    {
+                        var se = _out;
+                        var sn = _out.T;
+                        if ((_path.HasVisited(sn) && sn.Name == _path.Start.Name) || !_path.HasVisited(sn))
                         {
-                            var se = _out;
-                            var sn = _out.T;
-                            if ((_path.HasVisited(sn) && sn.Name == start.Name) || !_path.HasVisited(sn))
-                            {
-                                var branch = _path.Copy();
-                                var snode = sn.Copy();
-                                branch.Nodes.Add(sn);
-                                branch.NodeCopies.Add(snode);
-                                paths.Add(branch);
-                            }
+                            var branch = _path.Copy();
+                            var snode = sn.Copy();
+                            branch.Nodes.Add(sn);
+                            branch.NodeCopies.Add(snode);
+                            paths.Add(branch);
                         }
                     }
                 }
             }
-
+            
         exit_while:
 
             if (solution != null)

@@ -1,5 +1,5 @@
 digraph MaxFlowsSolution{
-    label="MaxFlows Solution"
+    label="MaxFlows Solution: Find The Bottle Neck"
     node[shape="circle",color=blue];
     edge[weight=0,penwidth=2,color="green"]
     rankdir="LR";    
@@ -11,21 +11,21 @@ digraph MaxFlowsSolution{
 
     subgraph "cluster_g1" {
         label="level 1\nin=19\nout=23"
-        T1[label="maxflows\n=19-4=15",shape="box" style="bold" color="#c2801e" fontcolor="#0044ff"];
+        T1[label="maxflows\n=19+d_cap(3)\n=19-4=15",shape="box" style="bold" color="#c2801e" fontcolor="#0044ff"];
         
         color="#ab2baf"
         {rank = same;2;f1};
     }
     
     subgraph "cluster_g2" {
-        T2[label="d_cap\n=8-(1+11)=-4",shape="box" style="bold"];
+        T2[label="d_cap(3)\n=8-(1+11)=-4\n<0",shape="box" style="bold"];
         label="level 2\nin=23\nout=29"
         color="gray"
         {rank = same;4;1};
     }
 
     subgraph "cluster_g3" {
-        T3[label="d_cap\n=19-(17+8)=-6",shape="box" style="bold"];
+        T3[label="d_cap(3)\n=19-(17+8)=-6\n<0",shape="box" style="bold"];
         label="level 3\nin=29\nout=23"
         color="gray"
         {rank = same;f2;3};

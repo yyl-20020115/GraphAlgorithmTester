@@ -15,6 +15,11 @@ public class SEdge
         this.T = t;
         this.Weight = w;
     }
+    public bool IsDupOf(SEdge target, bool undirectional = false)
+        => undirectional 
+        ? (this.O == target.O && this.T == target.T || this.O == target.T && this.T == target.O) 
+        : (this.O == target.O && this.T == target.T)
+        ;
 
     public SEdge Duplicate() => new(this.O, this.T, this.Weight);
 
