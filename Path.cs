@@ -24,7 +24,7 @@ public record class Path(List<SNode> Nodes)
 {
 
     public bool Undirectional = false;
-
+    public int NodesCount => this.Nodes.Count;
     public List<SNode> NodeCopies = new();
     public SNode Start => this.Nodes.FirstOrDefault();
     public SNode End => this.Nodes.LastOrDefault();

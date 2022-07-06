@@ -29,3 +29,15 @@ SubsetSumProblem:(The graph solution)
   There are 1 solutions:
     6(6) -> 4(4) = 10
 
+Binary Max Matching:
+  Total 6 nodes: 1,2,3,a,b,c
+  Total 12 edges: 1->a,a->1,1->b,b->1,1->c,c->1,2->a,a->2,2->c,c->2,3->a,a->3
+  Total 6 nodes: 1,2,3,a,b,c
+  Left  3 nodes: 1,2,3
+  Right 3 nodes: a,b,c
+  Total 12 edges: 1->a,a->1,1->b,b->1,1->c,c->1,2->a,a->2,2->c,c->2,3->a,a->3
+  Found best solution:
+    1->b
+    2->c
+    3->a
+

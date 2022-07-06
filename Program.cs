@@ -26,6 +26,6 @@ public static class Program
         hamilton.Solve(writer);
         maxflows.Solve(writer);
         subset.Solve(writer);
-        //binary.Solve(writer);
+        binary.Solve(writer);
     }
 }

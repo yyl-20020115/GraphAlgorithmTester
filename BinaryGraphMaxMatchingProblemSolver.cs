@@ -30,12 +30,12 @@ public class BinaryGraphMaxMatchingProblemSolver : ProblemSolver
                 return;
             }
             writer.WriteLine("  Total {0} nodes: {1}", Nodes.Count, string.Join(',', this.Nodes.Values));
+            writer.WriteLine("  Left  {0} nodes: {1}", left.Count, string.Join(',', left));
+            writer.WriteLine("  Right {0} nodes: {1}", right.Count, string.Join(',', right));
             writer.WriteLine("  Total {0} edges: {1}", Edges.Count, string.Join(',', this.Edges));
-
-            var names = Nodes.Keys.ToHashSet();
-
+            var indices = this.Nodes.Values.Select(n => n.NodeIndex).ToHashSet();
             var paths = new List<Path>();
-            var solutions = new List<Path>();
+            var solution = new List<SEdge>();
 
             foreach (var node in left)
             {
@@ -51,9 +51,9 @@ public class BinaryGraphMaxMatchingProblemSolver : ProblemSolver
             }
             //NP=P
             int step = 0;
-            while (step++ < names.Count)
+            while (step++ < indices.Count)
             {
-                paths.RemoveAll(p => p.Nodes.Count <= step || p.IsPreTerminated(names));
+                paths.RemoveAll(p => /*p.Nodes.Count <= step || */p.IsPreTerminated(indices));
                 foreach (var _path in paths.ToArray())
                 {
                     var current = _path.End;
@@ -74,34 +74,32 @@ public class BinaryGraphMaxMatchingProblemSolver : ProblemSolver
             }
             if (paths.Count > 0)
             {
-                var celists = paths.Select(p => p.BuildCopyEdges()).ToList();
-                foreach (var list in celists)
+                paths = paths.Where(p => p.NodesCount % 2 == 0).Distinct(new PathDirEq()).ToList();
+                if(paths.Count > 0)
                 {
-
+                    paths.Sort((x, y) => y.NodesCount - x.NodesCount);
+                    var best = paths.First();
+                    var edges = best.BuildCopyEdges();
+                    for(int i = 0; i < edges.Count; i += 2)
+                    {
+                        solution.Add(edges[i]);
+                    }
+                    solution.Reverse();
                 }
-
-                solutions.AddRange(paths);
             }
-
-            //with in all paths, no node is used again.
-
-
-
-            writer.WriteLine($"  Total {solutions.Count} solutions:");
-            foreach (var solution in solutions)
+            if (solution.Count > 0)
             {
-                writer.WriteLine($"    {solution}");
+                writer.WriteLine($"  Found best solution:");
+                foreach (var edge in solution)
+                {
+                    writer.WriteLine($"    {edge}");
+                }
             }
-
-
-
+            else
+            {
+                writer.WriteLine($"  No best solution found!");
+            }
             writer.WriteLine();
         }
-
-
-        //TODO: how to make the match?
-   
-
     }
-
 }
