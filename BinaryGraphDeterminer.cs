@@ -3,7 +3,7 @@ using System.Linq;
 
 namespace GraphAlgorithmTester;
 
-public class BinaryGraphDeterminer
+public class BinaryGraphDeterminer : GraphDeterminator
 {
     public enum NodeColor : uint
     {
@@ -11,13 +11,9 @@ public class BinaryGraphDeterminer
         Red = 1,
         Blue =2,
     }
-    public readonly IDictionary<string, SNode> Nodes;
-    public readonly ISet<SEdge> Edges;
     public BinaryGraphDeterminer(IDictionary<string, SNode> nodes, ISet<SEdge> edges)
-    {
-        Nodes = nodes;
-        Edges = edges;
-    }
+        : base(nodes, edges) { }
+
     public bool IsBinaryGraph(List<SNode>? reds = null, List<SNode>? blues = null)
     {
         if (this.Nodes.Count <=1) return true;//special binary graph

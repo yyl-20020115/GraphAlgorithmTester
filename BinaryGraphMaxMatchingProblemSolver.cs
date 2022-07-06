@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace GraphAlgorithmTester;
 
@@ -53,7 +50,9 @@ public class BinaryGraphMaxMatchingProblemSolver : ProblemSolver
             int step = 0;
             while (step++ < indices.Count)
             {
-                paths.RemoveAll(p => /*p.Nodes.Count <= step || */p.IsPreTerminated(indices));
+                int maxcount = paths.Max(p => p.NodesCount);
+                //only keep the longest paths
+                paths.RemoveAll(p => p.NodesCount < maxcount || p.IsPreTerminated(indices));
                 foreach (var _path in paths.ToArray())
                 {
                     var current = _path.End;
@@ -74,18 +73,14 @@ public class BinaryGraphMaxMatchingProblemSolver : ProblemSolver
             }
             if (paths.Count > 0)
             {
-                paths = paths.Where(p => p.NodesCount % 2 == 0).Distinct(new PathDirEq()).ToList();
-                if(paths.Count > 0)
+                paths.Sort((x, y) => y.NodesCount - x.NodesCount);
+                var best = paths.First();
+                var edges = best.BuildCopyEdges();
+                for (int i = 0; i < edges.Count; i += 2)
                 {
-                    paths.Sort((x, y) => y.NodesCount - x.NodesCount);
-                    var best = paths.First();
-                    var edges = best.BuildCopyEdges();
-                    for(int i = 0; i < edges.Count; i += 2)
-                    {
-                        solution.Add(edges[i]);
-                    }
-                    solution.Reverse();
+                    solution.Add(edges[i]);
                 }
+                solution.Reverse();
             }
             if (solution.Count > 0)
             {

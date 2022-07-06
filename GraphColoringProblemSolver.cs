@@ -6,10 +6,17 @@ namespace GraphAlgorithmTester;
 
 public class GraphColoringProblemSolver:ProblemSolver
 {
-    public uint UsableColors = 1;
-
+    public uint UsableColors = 5;
+    public string[] Parameters = new string[1];
     public override void Solve(TextWriter writer, string start_name = null, string end_name = null)
     {
+        if (this.Parameters.Length == 1 && this.Parameters[0] is string uc)
+        {
+            if (uc.StartsWith("C=") &&uc.Length>2)
+            {
+                uint.TryParse(uc[2..], out this.UsableColors);
+            }
+        }
         var node_colors = new Dictionary<SNode, uint>();
 
         writer.WriteLine("  Total {0} nodes: {1}", Nodes.Count, string.Join(',', this.Nodes.Values));

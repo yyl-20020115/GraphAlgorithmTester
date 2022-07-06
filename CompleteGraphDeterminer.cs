@@ -3,15 +3,10 @@ using System.Linq;
 
 namespace GraphAlgorithmTester;
 
-public class CompleteGraphDeterminer
+public class CompleteGraphDeterminer :GraphDeterminator
 {
-    public readonly IDictionary<string, SNode> Nodes;
-    public readonly ISet<SEdge> Edges;
     public CompleteGraphDeterminer(IDictionary<string, SNode> nodes, ISet<SEdge> edges)
-    {
-        Nodes = nodes;
-        Edges = edges;
-    }
+        : base(nodes, edges) { }
     public bool IsCompleteGraph(bool undirectional = false)
     {
         if (this.Edges.Count == 0 || this.Nodes.Count == 0) return false;
