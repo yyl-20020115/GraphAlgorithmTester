@@ -12,11 +12,12 @@ public static class Program
         var traveller = new TravellerProblemSolver();
         var hamilton = new HamitonianCycleProblemSolver();
         var maxflows = new MaxFlowsProblemResolver();
+        var subset = new SubsetSumProblemSolver();
 
         ProblemSolver.BuildGraph("CityGraphInput.txt", traveller.Nodes, traveller.Edges, true);
         ProblemSolver.BuildGraph("HamiltonianCycle.txt", hamilton.Nodes, hamilton.Edges);
         ProblemSolver.BuildGraph("MaxFlows1.txt", maxflows.Nodes, maxflows.Edges,true);
-
+        ProblemSolver.BuildGraph("Subset1.txt", subset.Nodes, subset.Edges);
         using var writer = new StreamWriter("Result.txt");
         traveller.Solve(writer);
         hamilton.Solve(writer);

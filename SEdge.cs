@@ -4,6 +4,7 @@ public class SEdge
 {
     public SNode O;
     public SNode T;
+    public int EdgeIndex = 0;
     public int Weight = 0;
     public bool WithWeight = false;
     public int Length { get => this.Weight; set => this.Weight = value; }

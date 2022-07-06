@@ -3,6 +3,7 @@
 public class SNode
 {
     public string Name = "";
+    public int NodeIndex = 0;
     public int? Offset = null;
     public int InCapacity = 0;
     public int OutCapacity = 0;

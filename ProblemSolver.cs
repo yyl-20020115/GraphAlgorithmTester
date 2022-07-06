@@ -11,8 +11,10 @@ public abstract class ProblemSolver
     public abstract void Solve(TextWriter writer, string start_name = null, string end_name = null);
 
 
-    public static void BuildGraph(string path, IDictionary<string, SNode> nodes, ISet<SEdge> edges, bool WithWeight=false)
+    public static void BuildGraph(string path, IDictionary<string, SNode> nodes, ISet<SEdge> edges, bool WithWeight = false)
     {
+        var node_index = 0;
+        var edge_index = 0;
         using var reader = new StreamReader(path);
         while (reader.ReadLine() is string line)
         {
@@ -34,10 +36,10 @@ public abstract class ProblemSolver
                     }
                 }
                 if (!nodes.TryGetValue(so, out var o))
-                    nodes.Add(so, o = new SNode(so));
+                    nodes.Add(so, o = new SNode(so) { NodeIndex = node_index++ });
                 if (!nodes.TryGetValue(st, out var t))
-                    nodes.Add(st, t = new SNode(st));
-                edges.Add(new SEdge(o, t, dn) { WithWeight= WithWeight });
+                    nodes.Add(st, t = new SNode(st) { NodeIndex = node_index++ });
+                edges.Add(new SEdge(o, t, dn) { WithWeight = WithWeight, EdgeIndex = edge_index++ });
             }
             else if ((p = line.IndexOf('-')) >= 0)
             {
@@ -54,16 +56,16 @@ public abstract class ProblemSolver
                     }
                 }
                 if (!nodes.TryGetValue(so, out var o))
-                    nodes.Add(so, o = new SNode(so));
+                    nodes.Add(so, o = new SNode(so) { NodeIndex = node_index++ });
                 if (!nodes.TryGetValue(st, out var t))
-                    nodes.Add(st, t = new SNode(st));
-                edges.Add(new SEdge(o, t, dn) { WithWeight = WithWeight });
-                edges.Add(new SEdge(t, o, dn) { WithWeight = WithWeight });
+                    nodes.Add(st, t = new SNode(st) { NodeIndex = node_index++ });
+                edges.Add(new SEdge(o, t, dn) { WithWeight = WithWeight, EdgeIndex = edge_index++ });
+                edges.Add(new SEdge(t, o, dn) { WithWeight = WithWeight, EdgeIndex = edge_index++ });
             }
-            else if(line.Length>0) //this is node 
+            else if (line.Length > 0) //this is node 
             {
                 if (!nodes.TryGetValue(line, out var n))
-                    nodes.Add(line, n = new SNode(line));
+                    nodes.Add(line, n = new SNode(line) { NodeIndex = node_index++ });
             }
         }
     }

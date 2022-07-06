@@ -1,0 +1,16 @@
+digraph maxflows{
+    label="MaxFlows with rank"
+    node[shape="circle",color=blue];
+    edge[penwidth=2,color=green]
+    rankdir="LR";
+    0->1[label="11"];
+    0->2[label="8"];
+    1->3[label="8"];
+    2->1[label="1"];
+    2->4[label="11"];
+    4->3[label="17"];
+    4->5[label="4"];
+    3->5[label="19"];
+    // {rank = same 1, 2};
+    // {rank = same 3, 4};    
+}

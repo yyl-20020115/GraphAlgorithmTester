@@ -28,6 +28,18 @@ public record class Path(List<SNode> Nodes)
     public SNode Start => this.Nodes.FirstOrDefault();
     public SNode End => this.Nodes.LastOrDefault();
     public int? Length = null;
+    public bool CheckLength(int length)
+    {
+        if (this.Length == null) return false;
+
+        for(int i = this.NodeCopies.Count - 1; i >= 0; i--)
+        {
+            length -= this.NodeCopies[i].Offset.GetValueOrDefault();
+            if (length == 0)
+                return true;
+        }
+        return false;
+    }
     public bool HasVisited(SNode node) => this.Nodes.Any(n => n.Name == node.Name);
 
     public bool EqualToDirectionally(Path path) => this.Nodes.SequenceEqual(path.Nodes);
