@@ -7,6 +7,7 @@ public class SEdge
     public int EdgeIndex = 0;
     public int Weight = 0;
     public bool WithWeight = false;
+
     public int Length { get => this.Weight; set => this.Weight = value; }
     public int Capacity { get => this.Weight; set => this.Weight = value; }
     public SEdge(SNode o, SNode t, int w = 0)
@@ -22,7 +23,10 @@ public class SEdge
         ;
 
     public SEdge Duplicate() => new(this.O, this.T, this.Weight);
-
+    public bool IsEitherEndingPoint(SNode n)
+        => this.O == n || this.T == n;
+    public SNode GetOtherEndingPoint(SNode n)
+        => this.O == n ? this.T : (this.T == n ? this.O : null);
     public override string ToString() =>  
         (this.WithWeight?$"{this.O}-[{this.Weight}]->{this.T}":$"{this.O}->{this.T}");
 

@@ -14,7 +14,7 @@ public class BinaryGraphDeterminer : GraphDeterminator
     public BinaryGraphDeterminer(IDictionary<string, SNode> nodes, ISet<SEdge> edges)
         : base(nodes, edges) { }
 
-    public bool IsBinaryGraph(List<SNode>? reds = null, List<SNode>? blues = null)
+    public bool IsBinaryGraph(List<SNode> reds = null, List<SNode> blues = null)
     {
         if (this.Nodes.Count <=1) return true;//special binary graph
 

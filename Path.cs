@@ -20,15 +20,25 @@ public class PathUndirEq : IEqualityComparer<Path>
 }
 
 
-public record class Path(List<SNode> Nodes)
+public record class Path
 {
 
     public bool Undirectional = false;
     public int NodesCount => this.Nodes.Count;
+    public List<SNode> Nodes = new();
     public List<SNode> NodeCopies = new();
     public SNode Start => this.Nodes.FirstOrDefault();
     public SNode End => this.Nodes.LastOrDefault();
     public int? Length = null;
+    public Path() { }
+    public Path(params SNode[] nodes)
+    {
+        Nodes.AddRange(nodes);
+    }
+    public Path(List<SNode> Nodes)
+    {
+        this.Nodes = Nodes;
+    }
     public bool CheckLength(int length)
     {
         if (this.Length == null) return false;

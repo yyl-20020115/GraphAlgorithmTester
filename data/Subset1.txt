@@ -1,5 +1,5 @@
 ﻿#Subset: first element is sum
-10
+M=10
 6
 2
 5

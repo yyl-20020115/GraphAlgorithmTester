@@ -1,14 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace GraphAlgorithmTester;
 
 public class SubsetSumProblemSolver :ProblemSolver
 {
+    public string[] Parameters = new string[1];
+    public uint M = 0;
     public new List<SNode> Nodes { get; } = new();
     public override void Solve(TextWriter writer, string start_name = null, string end_name = null)
     {
@@ -19,8 +18,14 @@ public class SubsetSumProblemSolver :ProblemSolver
         }//>=2
         else
         {
-            int sum = 0;
-            SNode? first = null;
+            if (this.Parameters.Length == 1 && this.Parameters[0] is string uc)
+            {
+                if (uc.StartsWith("M=") && uc.Length > 2)
+                {
+                    uint.TryParse(uc[2..], out this.M);
+                }
+            }
+
             var values = new List<int>();
             foreach(var node in this.Nodes.OrderBy(n=>n.NodeIndex))
             {
@@ -31,21 +36,9 @@ public class SubsetSumProblemSolver :ProblemSolver
                 }
                 else
                 {
-                    if(first == null)
-                    {
-                        first = node;
-                        sum = value;
-                    }
-                    else 
-                    {
-                        node.Offset = value;
-                        values.Add(value);
-                    }
+                    node.Offset = value;
+                    values.Add(value);
                 }
-            }
-            if (first != null)
-            {
-                Nodes.Remove(first);
             }
             //now we have sum and nodes
             //we link every node to all other nodes
@@ -58,7 +51,7 @@ public class SubsetSumProblemSolver :ProblemSolver
                 this.Edges.UnionWith(backwards);
             }
             //now we do path searching
-            var indices = this.Nodes.Select(n=>n.NodeIndex-first.NodeIndex-1).ToHashSet();
+            var indices = this.Nodes.Select(n=>n.NodeIndex).ToHashSet();
 
             var paths = new List<Path>();
             //Make every node to start a new path:
@@ -67,8 +60,7 @@ public class SubsetSumProblemSolver :ProblemSolver
                 var outs = this.Edges.Where(e => e.O == node).ToList();
                 foreach (var _out in outs)
                 {
-                    paths.Add(new Path(
-                        new() { node })
+                    paths.Add(new Path(node)
                     {
                         Length = node.Offset.GetValueOrDefault() ,
                         NodeCopies = new() { node.Copy() },
@@ -81,10 +73,10 @@ public class SubsetSumProblemSolver :ProblemSolver
             int step = 0;
             while (step++ < counts)
             {
-                solutions.AddRange(paths.Where(p => p.Length == sum));
+                solutions.AddRange(paths.Where(p => p.Length == this.M));
                 //we don't need to find all possible solutions
                 if (solutions.Count > 0) break;
-                paths.RemoveAll(p => p.Nodes.Count < step || p.Length >= sum || p.IsPreTerminated(indices));
+                paths.RemoveAll(p => p.Nodes.Count < step || p.Length >= this.M || p.IsPreTerminated(indices));
                 foreach (var _path in paths.ToArray())
                 {
                     var current = _path.End;

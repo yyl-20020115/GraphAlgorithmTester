@@ -32,8 +32,7 @@ public class TravellerProblemSolver : ProblemSolver
             var outs = this.Edges.Where(e => e.O == start).ToList();
             foreach (var _out in outs)
             {
-                paths.Add(new(
-                    new() { start, _out.T })
+                paths.Add(new Path(start, _out.T)
                 {
                     Length = _out.Length,
                     NodeCopies = new() { start.Copy(), _out.T.Copy(_out.Length) }

@@ -39,8 +39,7 @@ public class BinaryGraphMaxMatchingProblemSolver : ProblemSolver
                 var outs = this.Edges.Where(e => e.O == node).ToList();
                 foreach (var _out in outs)
                 {
-                    paths.Add(new(
-                        new() { node, _out.T })
+                    paths.Add(new Path(node, _out.T)
                     {
                         NodeCopies = new() { node.Copy(), _out.T.Copy() }
                     });

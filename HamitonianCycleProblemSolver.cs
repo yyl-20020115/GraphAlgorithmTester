@@ -33,8 +33,7 @@ public class HamitonianCycleProblemSolver :ProblemSolver
             var outs = this.Edges.Where(e => e.O == start).ToList();
             foreach (var _out in outs)
             {
-                paths.Add(new(
-                    new() { start, _out.T })
+                paths.Add(new Path(start, _out.T)
                 {
                     NodeCopies = new() { start.Copy(), _out.T.Copy() }
                 });
@@ -68,23 +67,18 @@ public class HamitonianCycleProblemSolver :ProblemSolver
                 solutions.AddRange(paths);
             }
             var compacts = solutions.Distinct(new PathUndirEq()).ToList();
-
             writer.WriteLine($"  Total {solutions.Count} solutions:");
             foreach (var solution in solutions)
             {
                 writer.WriteLine($"    {solution}");
             }
-
             writer.WriteLine($"  Total {compacts.Count} compact solutions:");
 
             foreach (var compact in compacts)
             {
                 writer.WriteLine($"    {compact.ToString(true)}");
             }
-
-
             writer.WriteLine();
         }
     }
-
 }

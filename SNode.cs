@@ -5,6 +5,7 @@ public class SNode
     public string Name = "";
     public int NodeIndex = 0;
     public int? Offset = null;
+    public int? Color { get => this.Offset;set => this.Offset = value; }
     public int InCapacity = 0;
     public int OutCapacity = 0;
     public int LevelIndex = 0;

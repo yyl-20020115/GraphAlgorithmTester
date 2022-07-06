@@ -35,8 +35,7 @@ public class GraphColoringProblemSolver:ProblemSolver
         var outs = this.Edges.Where(e => e.O == start).ToList();
         foreach (var _out in outs)
         {
-            paths.Add(new(
-                new() { start, _out.T })
+            paths.Add(new Path(start, _out.T)
             {
                 NodeCopies = new() { start.Copy(), _out.T.Copy() }
             });
