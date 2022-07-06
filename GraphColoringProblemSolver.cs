@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace GraphAlgorithmTester;
 
@@ -23,7 +20,7 @@ public class GraphColoringProblemSolver:ProblemSolver
         if (!Nodes.TryGetValue((start_name ??= Nodes.First().Key), out var start))
             start = Nodes.First().Value;
 
-        //TODO:
+        //TODO: How to color the nodes
 
         var paths = new List<Path>();
         var solutions = new List<Path>();

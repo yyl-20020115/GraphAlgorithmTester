@@ -1,0 +1,10 @@
+﻿#Binary Maching Problem: result = 3
+#Girs 3
+#Boys 3
+1-a
+1-b
+1-c
+2-a
+2-c
+3-a
+
