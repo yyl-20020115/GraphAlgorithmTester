@@ -63,7 +63,7 @@ public class GraphColoringProblemSolver:ProblemSolver
         {
             solutions.AddRange(paths);
         }
-        var compacts = solutions.Distinct(new Path.UndEq()).ToList();
+        var compacts = solutions.Distinct(new PathUndirEq()).ToList();
 
         writer.WriteLine($"  Total {solutions.Count} solutions:");
         foreach (var solution in solutions)

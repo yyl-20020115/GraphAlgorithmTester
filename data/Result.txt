@@ -25,3 +25,7 @@ MaxFlowsProblem:
     Level 4, flows = 23: 5 (IN:23, OUT:23, DELTA:0)
   The max flows value is 15
 
+SubsetSumProblem:(The graph solution)
+  There are 1 solutions:
+    6(6) -> 4(4) = 10
+

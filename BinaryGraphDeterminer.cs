@@ -20,7 +20,8 @@ public class BinaryGraphDeterminer
     }
     public bool IsBinaryGraph(List<SNode>? reds = null, List<SNode>? blues = null)
     {
-        if (this.Nodes.Count < 2) return false;
+        if (this.Nodes.Count <=1) return true;//special binary graph
+
         var colored = new Dictionary<SNode, NodeColor>();
 
         foreach (var edge in this.Edges)
