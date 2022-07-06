@@ -9,9 +9,13 @@ public class HamitonianCycleProblemSolver :ProblemSolver
 
     public override void Solve(TextWriter writer, string start_name = null, string end_name = null)
     {
-        if (Nodes.Count > 0 && Edges.Count > 0)
+        writer.WriteLine("HamitonianCycleProblem:");
+        if (Nodes.Count < 2 || Edges.Count < 2)
         {
-            writer.WriteLine("HamitonianCycleProblem:");
+            writer.WriteLine("  Nodes count should >=2 and Edges count should >=2 too.");
+        }
+        else
+        {
             writer.WriteLine("  Total {0} nodes: {1}", Nodes.Count, string.Join(',', this.Nodes.Values));
             writer.WriteLine("  Total {0} edges: {1}", Edges.Count, string.Join(',', this.Edges));
 

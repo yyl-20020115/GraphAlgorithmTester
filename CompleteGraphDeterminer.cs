@@ -26,12 +26,18 @@ public class CompleteGraphDeterminer
         {
             for(int j= i+1; j < edges.Count; j++)
             {
-                edges.Add(new (nodes[i], nodes[j]));
+                var e = new SEdge(nodes[i], nodes[j]);
+                edges.Add(e);
+                if (!undirectional)
+                {
+                    edges.Add(e.Reverse());
+                }
             }
         }
         foreach(var edge in edges)
         {
-            if (!this.Edges.Any(e => edge.IsDupOf(e, undirectional)))
+            //one edge for one pair of nodes
+            if (1 != this.Edges.Count(e => edge.IsDupOf(e, undirectional)))
                 return false;
         }
         return true;
