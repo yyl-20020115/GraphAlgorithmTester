@@ -1,0 +1,12 @@
+digraph link
+{
+    node[shape="circle"];
+    rankdir="LR";    
+
+    1->2->3->4->5;
+    1[color="Blue"]
+    2[color="Red"]
+    3[color="Blue"]
+    4[color="Red"]
+    5[color="Blue"]
+}

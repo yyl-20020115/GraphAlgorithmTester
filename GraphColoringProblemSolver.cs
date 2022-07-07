@@ -172,7 +172,7 @@ public class GraphColoringProblemSolver:ProblemSolver
                     {
                         var ch = colors.ToHashSet();
                         ch.Remove(current);
-                        current = ch.Count == 0 ? 1 : ch.First();
+                        current = ch.Count == 0 ? 1 : ch.OrderBy(v=>v).First();
                     }
                 }
                 var group = new Dictionary<int, SNodeSet>();
