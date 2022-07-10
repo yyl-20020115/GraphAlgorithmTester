@@ -103,7 +103,7 @@ public class MutexGraphProblemSolver : ProblemSolver
                 var delayed = new HashLookups<int, SNode>();
                 for (int idx = 0; idx < levels.Count; idx++)
                 {
-                    if (delayed.TryGetValue(idx, out var delays))
+                    if (delayed.TryGetValue(idx, out HashSet<SNode> delays))
                     {
                         foreach (var node in delays)
                         {

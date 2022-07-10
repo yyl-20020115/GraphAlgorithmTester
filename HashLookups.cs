@@ -79,6 +79,19 @@ public class HashLookups<TKey, TValue> :Lookups<TKey,TValue>
     public bool Remove(KeyValuePair<TKey, ICollection<TValue>> item) => ((ICollection<KeyValuePair<TKey, ICollection<TValue>>>)Data).Remove(item);
     public void Add(TKey key, ICollection<TValue> value) => ((IDictionary<TKey, ICollection<TValue>>)Data).Add(key, value);
     public bool TryGetValue(TKey key, [MaybeNullWhen(false)] out ICollection<TValue> value) => ((IDictionary<TKey, ICollection<TValue>>)Data).TryGetValue(key, out value);
+    public bool TryGetValue(TKey key, [MaybeNullWhen(false)] out HashSet<TValue> value)
+    {
+        var r = ((IDictionary<TKey, ICollection<TValue>>)Data).TryGetValue(key, out var _value);
+        if (r)
+        {
+            value = _value as HashSet<TValue>;
+        }
+        else
+        {
+            value = new HashSet<TValue>();
+        }
+        return r;
+    } 
     public void CopyTo(Array array, int index) => ((ICollection)Data).CopyTo(array, index);
     public void Add(object key, object? value) => ((IDictionary)Data).Add(key, value);
     public bool Contains(object key) => ((IDictionary)Data).Contains(key);
