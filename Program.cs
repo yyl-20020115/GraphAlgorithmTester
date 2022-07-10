@@ -16,6 +16,7 @@ public static class Program
         var binary = new BinaryGraphMaxMatchingProblemSolver();
         var mutex = new MutexGraphProblemSolver();
         var coloring = new GraphColoringProblemSolver();
+        var image = new ImagePartitionProblemSolver();
 
         ProblemSolver.BuildGraph("CityGraphInput.txt", traveller.Nodes, traveller.Edges, true);
         ProblemSolver.BuildGraph("HamiltonianCycle.txt", hamilton.Nodes, hamilton.Edges);
@@ -35,5 +36,6 @@ public static class Program
         //this result is wrong, because the graph is not all connected
         //mutex.Solve(writer);
         coloring.Solve(writer);
+        image.Solve(writer);
     }
 }
