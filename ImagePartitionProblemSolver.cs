@@ -278,10 +278,7 @@ public class ImagePartitionProblemSolver : ProblemSolver
             subs.Add(sub);
             int x0 = (i+0) * delta;
             int x1 = (i+1) * delta;
-            if (x0 > 0)
-            {
-                x0--;
-            }
+            x0 = x0 > 0 ? x0 - 1 : 0;
             int w0 = x1 - x0;
             segments.Add((sub, x0, w0, i)); 
         }
