@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace GraphAlgorithmTester.Colors;
 
@@ -525,20 +523,30 @@ public static class Convert
         var xyz = LabtoXYZ(l, a, b);
         return XYZtoRGB(xyz.X, xyz.Y, xyz.Z);
     }
-    public static double MaxColorDistance = ColorDistance(new RGB(255, 255, 255), new RGB(0, 0, 0));
+    public static double MaxColorDistance = GetColorDistance(new (255, 255, 255), new (0, 0, 0));
     /// <summary>
     /// Best formular as L*a*b works
     /// </summary>
     /// <param name="e1"></param>
     /// <param name="e2"></param>
     /// <returns></returns>
-    public static double ColorDistance(RGB e1, RGB e2)
+    public static double GetColorDistance(RGB e1, RGB e2)
     {
         int rmean = (e1.Red + e2.Red) >>1;
         int r = e1.Red - e2.Red;
         int g = e1.Green - e2.Green;
         int b = e1.Blue - e2.Blue;
         return Math.Sqrt((((512 + rmean) * r * r) >> 8) + 4 * g * g + (((767 - rmean) * b * b) >> 8));
+    }
+    public static double GetColorDistance(Color c1,Color c2, double? MaxDistance = null)
+    {
+        MaxDistance ??= MaxColorDistance;
+        int rmean = (c1.R + c2.R) >> 1;
+        int r = c1.R - c2.R;
+        int g = c1.G - c2.G;
+        int b = c1.B - c2.B;
+        return Math.Sqrt((((512 + rmean) * r * r) >> 8) + 4 * g * g + (((767 - rmean) * b * b) >> 8))
+            / MaxDistance.GetValueOrDefault();
     }
 
     public static void RangeTest()
@@ -569,7 +577,7 @@ public static class Convert
                             {
                                 e2.Blue = values[k2];
 
-                                double d = ColorDistance(e1, e2);
+                                double d = GetColorDistance(e1, e2);
                                 results.Add(d);
                                 Console.WriteLine($"{e1}-{e2}={d}");
                             }
