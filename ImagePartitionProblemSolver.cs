@@ -27,7 +27,7 @@ public class ImagePartitionProblemSolver : ProblemSolver
             this.Y = Y;
         }
         public static implicit operator long(Point p) => (((long)p.Y << 32) | (long)p.X);
-        public static implicit operator Point(long v) => new Point(v);
+        public static implicit operator Point(long v) => new (v);
         public override string ToString() => $"({X},{Y})";
         public bool IsValid(int X0, int Y0, int W, int H) => this.X >= X0 && this.Y >= Y0 && this.X < X0 + W && this.Y < Y0 + H;
         public override bool Equals([NotNullWhen(true)] object obj) => obj is Point p && this == p;
@@ -171,20 +171,17 @@ public class ImagePartitionProblemSolver : ProblemSolver
                     new Point(p.X,p.Y+1),
                     new Point(p.X-1,p.Y+1),
                     new Point(p.X-1,p.Y),
-
                 };
                 for (int d = 0; d < cps.Length; d++)
                 {
                     var cp = cps[d];
                     if (cp.IsValid(x0, y0, w, h)
-                        && !visiting.ContainsKey(cp))
+                        && !visiting.ContainsKey(cp)) 
                     {
                         //NOTICE: this is the trick to minimize cost of the pixels
                         //Check if this route has been gone through
                         if (trace.TryGetValue(cp, out HashSet<long> sp) && sp.Contains(p))
-                        {
                             continue;
-                        }
                         trace.Add(cp, p);
                         visiting.Add(cp, r.Value);
                     }
@@ -212,14 +209,14 @@ public class ImagePartitionProblemSolver : ProblemSolver
                         else
                         {
                             ch = true;
-                            sets.Add(visiting[cp] = new Region(Color, cp, new()));
+                            sets.Add(visiting[cp] = new (Color, cp, new()));
                         }
                     }
                 }
                 else //no such color
                 {
                     ch |= true;
-                    colregions.Add(Color, visiting[cp] = new Region(Color, cp, new() { cp }));
+                    colregions.Add(Color, visiting[cp] = new (Color, cp, new() { cp }));
                 }
             }
             if (!ch) break;
