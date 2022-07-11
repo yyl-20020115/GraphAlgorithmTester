@@ -1,12 +1,10 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace GraphAlgorithmTester;
 
@@ -20,9 +18,11 @@ public class ImagePartitionProblemSolver : ProblemSolver
         public static bool operator !=(Point a, Point b) => !(a == b);
         public Point(long V)
         {
-            this.Y = (int)(V >> 32);
-            this.X = (int)(V & ~0);
+            this.Y = GetY(V);
+            this.X = GetX(V);
         }
+        public static int GetX(long V) => (int)(V & ~0);
+        public static int GetY(long V) => (int)(V >> 32);
         public Point(int X = 0, int Y = 0)
         {
             this.X = X;
@@ -35,46 +35,47 @@ public class ImagePartitionProblemSolver : ProblemSolver
         public override bool Equals([NotNullWhen(true)] object obj) => obj is Point p && this == p;
         public override int GetHashCode() => this.X ^ this.Y;
         public bool IsNextTo(Region region) => this.IsNextTo(region.Points);
-        public bool IsNextTo(HashSet<Point> points)
+        public bool IsNextTo(HashSet<long> points)
         {
             var x = this.X;
             var y = this.Y;
-            return points.Any(p => p.X >= x - 1 && p.X <= x + 1 && p.Y >= y - 1 && p.Y <= y + 1);
+            return points.Any(
+                p => new Point(p) is Point sp && sp.X >= x - 1 && sp.X <= x + 1 && sp.Y >= y - 1 && sp.Y <= y + 1);
         }
     }
-    public record Region(Color Color, Point First, HashSet<Point> Points)
+    public record Region(Color Color, long First, HashSet<long> Points)
     {
         public int Area => this.Points.Count;
-        public HashSet<Point> Points { init; get; } = new();
+        public HashSet<long> Points { init; get; } = new();
         public Path GetBorderPath()
         {
             if (this.Points.Count == 0) return new Path(this.Color, new());
 
-            int xmin = this.Points.Min(p => p.X);
-            int xmax = this.Points.Max(p => p.X);
-            int ymin = this.Points.Min(p => p.Y);
-            int ymax = this.Points.Max(p => p.Y);
+            int xmin = this.Points.Min(p => Point.GetX(p));
+            int xmax = this.Points.Max(p => Point.GetX(p));
+            int ymin = this.Points.Min(p => Point.GetY(p));
+            int ymax = this.Points.Max(p => Point.GetY(p));
             int xmid = (xmin + xmax) >> 1;
             int ymid = (ymin + ymax) >> 1;
-            var points = new List<Point>();
+            var points = new List<long>();
 
             for (int i = xmin; i <= xmax; i++)
             {
                 if (i == xmin)
                 {
-                    points.AddRange(this.Points.Where(p => p.X == i).OrderByDescending(p => p.Y));
+                    points.AddRange(this.Points.Where(p => Point.GetX(p) == i).OrderByDescending(p => Point.GetY(p)));
                 }
                 else if (i == xmax)
                 {
-                    points.AddRange(this.Points.Where(p => p.X == i).OrderBy(p => p.Y));
+                    points.AddRange(this.Points.Where(p => Point.GetX(p) == i).OrderBy(p => Point.GetY(p)));
                 }
                 else
                 {
-                    var ls = this.Points.Where(p => p.X == i).ToList();
+                    var ls = this.Points.Where(p => Point.GetX(p) == i).ToList();
                     if (ls.Count > 0)
                     {
-                        var ms = ls.Min(p => p.Y);
-                        points.AddRange(ls.Where(p => p.Y == ms));
+                        var ms = ls.Min(p => Point.GetY(p));
+                        points.AddRange(ls.Where(p => (Point.GetY(p) == ms)));
 
                     }
                 }
@@ -83,27 +84,26 @@ public class ImagePartitionProblemSolver : ProblemSolver
             {
                 if (i == xmax)
                 {
-                    points.AddRange(this.Points.Where(p => p.X == i).OrderBy(p => p.Y));
-
+                    points.AddRange(this.Points.Where(p => Point.GetX(p) == i).OrderBy(p => Point.GetY(p)));
                 }
                 else if (i == xmin)
                 {
-                    points.AddRange(this.Points.Where(p => p.X == i).OrderByDescending(p => p.Y));
+                    points.AddRange(this.Points.Where(p => Point.GetX(p) == i).OrderByDescending(p => Point.GetY(p)));
                 }
                 else
                 {
-                    var ls = this.Points.Where(p => p.X == i).ToList();
+                    var ls = this.Points.Where(p => Point.GetX(p) == i).ToList();
                     if (ls.Count > 0)
                     {
-                        var ms = ls.Max(p => p.Y);
-                        points.AddRange(ls.Where(p => p.Y == ms));
+                        var ms = ls.Max(p => Point.GetY(p));
+                        points.AddRange(ls.Where(p => Point.GetY(p) == ms));
                     }
                 }
             }
             return new Path(this.Color, points.Distinct().ToList());
         }
     }
-    public record Path(Color Color, List<Point> Points)
+    public record Path(Color Color, List<long> Points)
     {
         public Color InvertColor
             => Color.FromArgb(
@@ -172,14 +172,14 @@ public class ImagePartitionProblemSolver : ProblemSolver
                 var p = new Point(r.Key);
                 var cps = new Point[]
                 {
-                    new Point(p.X-1,p.Y-1),
-                    new Point(p.X,p.Y-1),
-                    new Point(p.X+1,p.Y-1),
-                    new Point(p.X+1,p.Y),
-                    new Point(p.X+1,p.Y+1),
-                    new Point(p.X,p.Y+1),
-                    new Point(p.X-1,p.Y+1),
-                    new Point(p.X-1,p.Y),
+                    new (p.X-1,p.Y-1),
+                    new (p.X,p.Y-1),
+                    new (p.X+1,p.Y-1),
+                    new (p.X+1,p.Y),
+                    new (p.X+1,p.Y+1),
+                    new (p.X,p.Y+1),
+                    new (p.X-1,p.Y+1),
+                    new (p.X-1,p.Y),
                 };
                 for (int d = 0; d < cps.Length; d++)
                 {
@@ -266,10 +266,10 @@ public class ImagePartitionProblemSolver : ProblemSolver
         var sw = new Stopwatch();
         sw.Start();
 
-        int cpus = 6;
+        int cpus = 1;// Environment.ProcessorCount;
 
         int delta = w / cpus;
-
+        
         var subs = new List<HashLookups<Color, Region>>();
         var segments = new List<(HashLookups<Color, Region> sub ,int x0,int w0,int i)>();
         for(int i = 0; i < cpus; i++)
@@ -305,7 +305,7 @@ public class ImagePartitionProblemSolver : ProblemSolver
             foreach (var region in regions)
             {
                 var path = region.GetBorderPath();
-                var pen = new Pen(Color.White, 2.0f);
+                var pen = new Pen(Color.White, 1.0f);
                 //foreach (var p in region.Points)
                 //{
                 //    bitmap.SetPixel(p.X, p.Y, path.InvertColor);
@@ -313,7 +313,7 @@ public class ImagePartitionProblemSolver : ProblemSolver
                 if (path.Points.Count > 0)
                 {
                     var pt = default(Point);
-                    var p0 = path.Points[0];
+                    var p0 = (Point)path.Points[0];
                     for (int i = 1; i < path.Points.Count; i++)
                     {
                         pt = path.Points[i];
