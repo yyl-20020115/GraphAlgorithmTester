@@ -1,10 +1,12 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace GraphAlgorithmTester;
 
@@ -69,8 +71,12 @@ public class ImagePartitionProblemSolver : ProblemSolver
                 else
                 {
                     var ls = this.Points.Where(p => p.X == i).ToList();
-                    var ms = ls.Min(p => p.Y);
-                    points.AddRange(ls.Where(p => p.Y == ms));
+                    if (ls.Count > 0)
+                    {
+                        var ms = ls.Min(p => p.Y);
+                        points.AddRange(ls.Where(p => p.Y == ms));
+
+                    }
                 }
             }
             for (int i = xmax; i >= xmin; i--)
@@ -87,8 +93,11 @@ public class ImagePartitionProblemSolver : ProblemSolver
                 else
                 {
                     var ls = this.Points.Where(p => p.X == i).ToList();
-                    var ms = ls.Max(p => p.Y);
-                    points.AddRange(ls.Where(p => p.Y == ms));
+                    if (ls.Count > 0)
+                    {
+                        var ms = ls.Max(p => p.Y);
+                        points.AddRange(ls.Where(p => p.Y == ms));
+                    }
                 }
             }
             return new Path(this.Color, points.Distinct().ToList());
@@ -131,7 +140,7 @@ public class ImagePartitionProblemSolver : ProblemSolver
         return rc.Count > 0;
     }
 
-    public void SolveBlock(DirectBitmap bitmap, HashLookups<Color, Region> colregions, int x0, int y0, int w, int h, bool tailx, bool taily)
+    public void SolveBlock(DirectBitmap bitmap, HashLookups<Color, Region> colregions, int x0, int y0, int w, int h, bool tailx=false, bool taily = false)
     {
         if (tailx)
         {
@@ -256,7 +265,33 @@ public class ImagePartitionProblemSolver : ProblemSolver
         var colregions = new HashLookups<Color, Region>();
         var sw = new Stopwatch();
         sw.Start();
-        this.SolveBlock(direct, colregions, 0, 0, w, h, false, false);
+
+        int cpus = 6;
+
+        int delta = w / cpus;
+
+        var subs = new List<HashLookups<Color, Region>>();
+        var segments = new List<(HashLookups<Color, Region> sub ,int x0,int w0,int i)>();
+        for(int i = 0; i < cpus; i++)
+        {
+            var sub = new HashLookups<Color, Region>();
+            subs.Add(sub);
+            int x0 = (i+0) * delta;
+            int x1 = (i+1) * delta;
+            if (x0 > 0)
+            {
+                x0--;
+            }
+            int w0 = x1 - x0;
+            segments.Add((sub, x0, w0, i)); 
+        }
+        segments.AsParallel().ForAll(
+            (a) => this.SolveBlock(direct, a.sub, a.x0, 0, a.w0, h, a.i == cpus - 1));
+
+        foreach(var sub in subs)
+        {
+            colregions.AddRange(sub);
+        }
 
         var regions = new List<Region>();
         foreach (var ctr in colregions)
