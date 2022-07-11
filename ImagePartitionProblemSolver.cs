@@ -179,6 +179,7 @@ public class ImagePartitionProblemSolver : ProblemSolver
                     if (cp.IsValid(x0, y0, w, h)
                         && !visiting.ContainsKey(cp))
                     {
+                        //NOTICE: this is the trick to minimize cost of the pixels
                         //Check if this route has been gone through
                         if (trace.TryGetValue(cp, out HashSet<long> sp) && sp.Contains(p))
                         {
