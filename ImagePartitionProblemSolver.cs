@@ -1,9 +1,12 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace GraphAlgorithmTester;
 
@@ -28,14 +31,15 @@ public class ImagePartitionProblemSolver : ProblemSolver
         public static implicit operator long(Point p) => (((long)p.Y << 32) | (long)p.X);
         public static implicit operator Point(long v)=>new Point(v);
         public override string ToString() => $"({X},{Y})";
-        public bool IsValid(int W, int H) => this.X >= 0 && this.Y >= 0 && this.X < W && this.Y < H;
+        public bool IsValid(int X0,int Y0, int W, int H) => this.X >= X0 && this.Y >= Y0 && this.X < X0+W && this.Y <Y0 + H;
         public override bool Equals([NotNullWhen(true)] object obj) => obj is Point p && this == p;
         public override int GetHashCode() => this.X ^ this.Y;
-        public bool IsNextTo(Region region)
+        public bool IsNextTo(Region region) => this.IsNextTo(region.Points);
+        public bool IsNextTo(HashSet<Point> points)
         {
             var x = this.X;
             var y = this.Y;
-            return region.Points.Any(p => p.X >= x - 1 && p.X <= x + 1 && p.Y >= y - 1 && p.Y <= y + 1);
+            return points.Any(p => p.X >= x - 1 && p.X <= x + 1 && p.Y >= y - 1 && p.Y <= y + 1);
         }
     }
     public record Region(Color Color,Point First, HashSet<Point> Points)
@@ -99,55 +103,58 @@ public class ImagePartitionProblemSolver : ProblemSolver
                 (byte)~this.Color.B
                 );
     }
-
-    public bool CompactRegions(ICollection<Region> regions, List<Region> compact)
+    public bool AnyNear(HashSet<Point> a, HashSet<Point> b)
     {
-        var cs = regions.Select(r => r.Color).ToHashSet();
-        if (cs.Count != 1) return false;
-
-        var fs = cs.Single();
+        return a.Any(p=>p.IsNextTo(b));
+    }
+    public bool CompactRegions(Color color ,ICollection<Region> regions, List<Region> compact)
+    {
         var rs = regions.ToList();
         //rc has same color
-        var rc = rs.Where(r => r.Color == fs).ToList();
+        var rc = rs.Where(r => r.Color == color).ToList();
         if (rc.Count > 0)
         {
-            for (int t = 0; t < rc.Count; t++)
+            var rc0 = rc[0];
+            var any = false;
+            do
             {
+                any = false;
                 for (int i = 1; i < rc.Count; i++)
                 {
-                    //combine regions
-                    if (rc[i].Points.Overlaps(rc[t].Points))
+                    if (rc0.Points.Overlaps(rc[i].Points))
                     {
-                        rc[t].Points.UnionWith(rc[i].Points);
-                        rc[i].Points.Clear();
+                        any = true;
+                        rc0.Points.UnionWith(rc[i].Points);
+                        rc.Remove(rc[i]);
                     }
                 }
-            }
-            compact.AddRange(rc.Where(c => c.Points.Count > 0));
+            } while (any);
+            compact.AddRange(rc.Where(r=>r.Points.Count>0));
         }
         return rc.Count > 0;
     }
-    public override void Solve(TextWriter writer, string start_name = null, string end_name = null)
+
+    public void SolveBlock(DirectBitmap bitmap, HashLookups<Color, Region> colregions, Dictionary<long, Region> visiting, HashSet<long> last, int x0, int y0,int w,int h,bool tailx,bool taily)
     {
-        var fn = "Partition.png";
-        using var bitmap = Bitmap.FromFile(fn) as Bitmap;
-
-        int w = bitmap.Width;
-        int h = bitmap.Height;
-        if (w == 0 || h == 0)
+        if (tailx)
         {
-
-            return;
+            w = bitmap.Width - x0;
         }
-        //middle point
-        int x0 = (w >> 1);
-        int y0 = (h >> 1);
-        var colregions = new HashLookups<Color, Region>();        
-        var visiting = new Dictionary<long, Region>() { [new Point(x0,y0)]= new Region(bitmap.GetPixel(x0,y0),new(x0,y0),new()) };
-        var last = new HashSet<long>();
-        colregions.Add(visiting.First().Value.Color, visiting.First().Value);
-        int area = w * h;
-        while (visiting.Count>0)
+        if (taily)
+        {
+            h = bitmap.Height - y0;
+        }
+
+
+        var p0 = new Point(x0 + (w>>1), y0 + (h>>1));
+        var r0 = new Region(bitmap.GetPixel(p0.X, p0.Y), p0, new());
+        if (!visiting.ContainsKey(p0))
+        {
+            visiting[p0] = r0;
+            colregions.Add(r0.Color, r0);
+        }
+        
+        while (visiting.Count > 0)
         {
             var ps = visiting.ToArray();
             last = visiting.Keys.ToHashSet();
@@ -168,44 +175,30 @@ public class ImagePartitionProblemSolver : ProblemSolver
                     new Point(p.X-1,p.Y),
 
                 };
-                for (int d = 0;d<cps.Length ; d++)
+                for (int d = 0; d < cps.Length; d++)
                 {
                     var cp = cps[d];
-                    if ( cp.IsValid(w,h) && cp != r.Key && !visiting.ContainsKey(cp) && 
-                        !last.Contains(cp))
+                    if (cp.IsValid(x0, y0, w, h) && !visiting.ContainsKey(cp) && !last.Contains(cp))
                     {
                         visiting.Add(cp, r.Value);
                     }
                 }
-                //for (int dy = -1; dy <= +1; dy++)
-                //{
-                //    int y = r.Key.Y + dy;
-                //    y = y < 0 ? 0 : y;
-                //    y = y >= h ? h - 1 : y;
-
-                //    for (int dx = -1; dx <= +1; dx++)
-                //    {
-                //        int x = r.Key.X + dx;
-                //        x = x < 0 ? 0 : x;
-                //        x = x >= w ? w - 1 : x;
-                //    }
-                //}
             }
             var ch = false;
-            foreach(var r in visiting.ToArray())
+            foreach (var r in visiting.ToArray())
             {
-                var cp =new Point(r.Key);
+                var cp = new Point(r.Key);
                 var Color = bitmap.GetPixel(cp.X, cp.Y);
-                if (colregions.TryGetValue(Color, out HashSet<Region> rs))
+                if (colregions.TryGetValue(Color, out HashSet<Region> sets))
                 {
-                    if (rs.Contains(r.Value))
+                    if (sets.Contains(r.Value))
                     {
                         ch |= r.Value.Points.Add(cp);
                     }
                     else
                     {
-                        var fr = rs.Where(s => cp.IsNextTo(s)).FirstOrDefault();
-                        if(fr!=null)
+                        var fr = sets.Where(s => cp.IsNextTo(s)).FirstOrDefault();
+                        if (fr != null)
                         {
                             ch |= fr.Points.Add(cp);
                             visiting[cp] = fr;
@@ -213,7 +206,7 @@ public class ImagePartitionProblemSolver : ProblemSolver
                         else
                         {
                             ch = true;
-                            rs.Add(visiting[cp] = new Region(Color, cp, new()));
+                            sets.Add(visiting[cp] = new Region(Color, cp, new()));
                         }
                     }
                 }
@@ -225,24 +218,61 @@ public class ImagePartitionProblemSolver : ProblemSolver
             }
             if (!ch) break;
         }
+    }
+
+    protected (int ws,int hs) Factor(int count)
+    {
+        int r = (int)Math.Sqrt(count);
+        for(int i = r; i >= 2; i--)
+        {
+            if (count % i == 0) return (count / i, i);
+        }
+        return (count, 1);
+    }
+    public override void Solve(TextWriter writer, string start_name = null, string end_name = null)
+    {
+        var fn = "Partition.png";
+        using var bitmap = Bitmap.FromFile(fn) as Bitmap;
+
+        int w = bitmap.Width;
+        int h = bitmap.Height;
+
+        if (w == 0 || h == 0)
+        {
+
+            return;
+        }
+
+        using var direct = new DirectBitmap(w, h);
+
+        using (var g = Graphics.FromImage(direct.Bitmap))
+        {
+            g.DrawImage(bitmap, new System.Drawing.Point(0, 0));
+        }
+
+        var colregions = new HashLookups<Color, Region>();
+        var visiting = new Dictionary<long, Region>();
+        var last = new HashSet<long>();
+
+        this.SolveBlock(direct, colregions, visiting, last, 0, 0, w, h, false, false);
 
         var regions = new List<Region>();
         foreach(var ctr in colregions)
         {
-            this.CompactRegions(ctr.Value, regions);
+            this.CompactRegions(ctr.Key,ctr.Value, regions);
         }
 
         if (regions.Count > 0)
         {
-            using var g = Graphics.FromImage(bitmap);
+            using var g2 = Graphics.FromImage(bitmap);
             //here we get all regions
             foreach (var region in regions)
             {
                 var path = region.GetBorderPath();
                 var pen = new Pen(Color.White,2.0f);
-                //foreach(var p in region.Points)
+                //foreach (var p in region.Points)
                 //{
-                //    bitmap.SetPixel(p.X, p.Y,path.InvertColor);
+                //    bitmap.SetPixel(p.X, p.Y, path.InvertColor);
                 //}
                 if (path.Points.Count > 0)
                 {
@@ -251,12 +281,12 @@ public class ImagePartitionProblemSolver : ProblemSolver
                     for(int i = 1; i < path.Points.Count; i++)
                     {
                         pt = path.Points[i];
-                        g.DrawLine(pen, p0.X, p0.Y, pt.X, pt.Y);
+                        g2.DrawLine(pen, p0.X, p0.Y, pt.X, pt.Y);
                         p0 = pt;
                     }
 
                     pt = path.Points[0];
-                    g.DrawLine(pen, p0.X, p0.Y, pt.X, pt.Y);
+                    g2.DrawLine(pen, p0.X, p0.Y, pt.X, pt.Y);
                 }
 
             }

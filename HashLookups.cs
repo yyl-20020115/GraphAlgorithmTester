@@ -55,6 +55,20 @@ public class HashLookups<TKey, TValue> :Lookups<TKey,TValue>
         var vs = this[key];
         foreach(var v in values) vs.Add(v);
     }
+    public void AddRange(Lookups<TKey, TValue> lookups)
+    {
+        foreach (var item in lookups)
+        {
+            if (!this.Data.TryGetValue(item.Key, out var t))
+            {
+                this.Data.Add(item.Key, t = new HashSet<TValue>(item.Value));
+            }
+            if(t is HashSet<TValue> ht)
+                ht.UnionWith(item.Value);
+        }
+    }
+
+
     public ICollection<TValue> this[TKey key]
     {
         get
