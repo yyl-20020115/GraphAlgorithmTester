@@ -110,10 +110,10 @@ public class BackPackProblemSolver : ProblemSolver
 
             if (solutions.Count > 0)
             {
-                writer.WriteLine($"  There are {solutions.Count} solutions (with assembling order):");
+                writer.WriteLine($"  There are {solutions.Count} solutions (with put order):");
                 foreach (var solution in solutions)
                 {
-                    writer.WriteLine($"    {solution}(Weight), {PathSumEq.GetPathSum(solution, NodeValues)}(Price)");
+                    writer.WriteLine($"    {solution} (Weight), {PathSumEq.GetPathSum(solution, NodeValues)} (Price)");
                 }
             }
             else
