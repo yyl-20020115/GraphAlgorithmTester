@@ -1,0 +1,11 @@
+﻿#BackPack: first element is max weight
+#X:Y
+#X:Item Price
+#Y:Item Weight
+M=10
+6:1
+2:3
+5:2
+2:5
+5:4
+4:6

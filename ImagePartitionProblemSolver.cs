@@ -40,7 +40,11 @@ public class ImagePartitionProblemSolver : ProblemSolver
             var x = this.X;
             var y = this.Y;
             return points.Any(
-                p => new Point(p) is Point sp && sp.X >= x - 1 && sp.X <= x + 1 && sp.Y >= y - 1 && sp.Y <= y + 1);
+              p => Point.GetX(p) >= x - 1 
+                && Point.GetX(p) <= x + 1 
+                && Point.GetY(p) >= y - 1 
+                && Point.GetY(p) <= y + 1
+                );
         }
     }
     public record Region(Color Color, long First, HashSet<long> Points)
@@ -212,8 +216,10 @@ public class ImagePartitionProblemSolver : ProblemSolver
                         var fr = sets.Where(s => cp.IsNextTo(s)).FirstOrDefault();
                         if (fr != null)
                         {
-                            ch |= fr.Points.Add(cp);
-                            visiting[cp] = fr;
+                            if (ch |= fr.Points.Add(cp))
+                            {
+                                visiting[cp] = fr;
+                            }
                         }
                         else
                         {

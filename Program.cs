@@ -17,6 +17,7 @@ public static class Program
         var mutex = new MutexGraphProblemSolver();
         var coloring = new GraphColoringProblemSolver();
         var image = new ImagePartitionProblemSolver();
+        var pack = new BackPackProblemSolver();
 
         ProblemSolver.BuildGraph("CityGraphInput.txt", traveller.Nodes, traveller.Edges, true);
         ProblemSolver.BuildGraph("HamiltonianCycle.txt", hamilton.Nodes, hamilton.Edges);
@@ -25,7 +26,8 @@ public static class Program
         ProblemSolver.BuildGraph("BinaryMatching1.txt", binary.Nodes, binary.Edges);
         ProblemSolver.BuildGraph("MutexGraph1.txt", mutex.Nodes, mutex.Edges);
 
-        ProblemSolver.BuildGraph("GraphColoring3.txt", coloring.Nodes, coloring.Edges, parameters:coloring.Parameters);
+        ProblemSolver.BuildGraph("GraphColoring3.txt", coloring.Nodes, coloring.Edges, parameters: coloring.Parameters);
+        ProblemSolver.BuildGraph("BackPack1.txt", pack.Nodes, pack.Edges, parameters: pack.Parameters);
 
         using var writer = new StreamWriter("Result.txt");
         traveller.Solve(writer);
@@ -37,5 +39,6 @@ public static class Program
         //mutex.Solve(writer);
         coloring.Solve(writer);
         image.Solve(writer);
+        pack.Solve(writer);
     }
 }

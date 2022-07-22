@@ -18,6 +18,30 @@ public class PathUndirEq : IEqualityComparer<Path>
 
     public int GetHashCode([DisallowNull] Path path) => 0;
 }
+public class PathSumEq : IEqualityComparer<Path>
+{
+    public static int GetPathSum(Path path, Dictionary<SNode, int> values)
+    {
+        var sum = 0;
+        foreach (var node in path.Nodes)
+        {
+            if (values.TryGetValue(node, out var n))
+                sum += n;
+        }
+        return sum;
+    }
+
+    public Dictionary<SNode, int> NodeValues;
+    public PathSumEq(Dictionary<SNode, int> nodeValues)
+    {
+        NodeValues = nodeValues;
+    }
+
+    public bool Equals(Path x, Path y) 
+        => GetPathSum(x, NodeValues) == GetPathSum(y, NodeValues);
+
+    public int GetHashCode([DisallowNull] Path path) => 0;
+}
 
 
 public record class Path
