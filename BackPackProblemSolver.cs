@@ -71,13 +71,14 @@ public class BackPackProblemSolver : ProblemSolver
                     });
                 }
             }
+            var eq = new PathUndirEq();
             var solutions = new List<Path>();
             //Process with all paths
             int counts = indices.Count;
             int step = 0;
             while (step++ < counts)
             {
-                solutions.AddRange(paths.Where(p => p.Length <= this.MaxWeight));
+                solutions.AddRange(paths.Where(p => p.Length <= this.MaxWeight).Distinct(eq));
                 //we don't need to find all possible solutions
                 paths.RemoveAll(p => p.Nodes.Count < step || p.Length > this.MaxWeight || p.IsPreTerminated(indices));
                 foreach (var _path in paths.ToArray())
@@ -102,7 +103,7 @@ public class BackPackProblemSolver : ProblemSolver
                 }
             }
             //var eq = new PathSumEq(NodeValues);
-            solutions = solutions.Distinct(new PathUndirEq()).ToList();
+            solutions = solutions.Distinct(eq).ToList();
 
             int max_price = solutions.Max(path=>PathSumEq.GetPathSum(path,NodeValues));
 
