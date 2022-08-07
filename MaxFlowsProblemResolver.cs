@@ -140,7 +140,10 @@ public class MaxFlowsProblemResolver : ProblemSolver
             //apply for subs (adding minus value)
             foreach(var t in deltas)
             {
-                inps[t.Key] += t.Value.Min();  
+                if (t.Key >= 0 && t.Key < inps.Count)
+                {
+                    inps[t.Key] += t.Value.Min();
+                }
             }
 
             //find the narrowest part of the flow stream and get the flow value
