@@ -44,7 +44,7 @@ public class MaxFlowsProblemResolver2 : ProblemSolver
     }
     public override void Solve(TextWriter writer, string start_name = null, string end_name = null)
     {
-        writer.WriteLine("MaxFlowsProblem:");
+        writer.WriteLine("MaxFlowsProblem2:");
         if (Nodes.Count < 2 || Edges.Count == 0)
         {
             writer.WriteLine("  Nodes count should >=2 and Edges count should >=1 too.");
@@ -62,11 +62,11 @@ public class MaxFlowsProblemResolver2 : ProblemSolver
             if (!Nodes.TryGetValue((end_name ??= Nodes.Last().Key), out var end))
                 end = Nodes.Last().Value;
 
-            //break loops
-            var loops = this.BreakLoops(start, names);
+            //reverse loops
+            var loops = this.ReverseLoops(start, names);
             if (loops > 0)
             {
-                writer.WriteLine($"    Found {loops} loop(s), and being broken up!");
+                writer.WriteLine($"    Found {loops} loop(s), and they're now reversed!");
             }
 
             //first capacity is calculated backwards
@@ -106,11 +106,11 @@ public class MaxFlowsProblemResolver2 : ProblemSolver
             var levels = new List<HashSet<SNode>>();
             for (int i = 0; i < level_index - 1; i++)
             {
-                var level = this.Nodes.Values.Where(n => n.LevelIndex == i).ToHashSet();
-                if (level.Count > 0)
+                var _level = this.Nodes.Values.Where(n => n.LevelIndex == i).ToHashSet();
+                if (_level.Count > 0)
                 {
-                    levels.Add(level);
-                    all.UnionWith(level);
+                    levels.Add(_level);
+                    all.UnionWith(_level);
                 }
             }
 
@@ -155,48 +155,37 @@ public class MaxFlowsProblemResolver2 : ProblemSolver
             var inps = new List<int>(levels.Select(l => l.Sum(n => n.InCapacity)));
             var outs = new List<int>(levels.Select(l => l.Sum(n => n.OutCapacity)));
 
-            var poslist = new List<(int delta, List<SNode> nodes)>();
-            var neglist = new List<(int delta, List<SNode> nodes)>();
+            var maxflows = inps.Min();
+
+            (int index, int delta, HashSet<SNode> nodes)? top_negs = null;
+            //if any node in any level has greater out capacity than in capacity,
+            //we think this network is ready for max flows
+            //otherwise, we check the node and it's affection.
             for (var i = levels.Count - 1; i > 0; i--)
             {
-                var level = levels[i];
-                var pos = level.Where(n => n.DeltaCapacity > 0).ToList();
-                if (pos.Any())
+                var _level = levels[i];
+                var negs = _level.Where(n => n.DeltaCapacity < 0).ToHashSet();
+                if (negs.Any())
                 {
-                    poslist.Add((pos.Sum(n => n.DeltaCapacity), pos));
-                }
-                else
-                {
-                    poslist.Add((0, null));
-                }
-                var neg = level.Where(n => n.DeltaCapacity < 0).ToList();
-                if (neg.Any())
-                {
-                    neglist.Add((neg.Sum(n => n.DeltaCapacity), neg));
-                }
-                else
-                {
-                    neglist.Add((0, null));
+                    top_negs = (i, negs.Sum(n => n.DeltaCapacity),negs);
+                    break;
                 }
             }
 
-
-
             //find the narrowest part of the flow stream and get the flow value
-            var maxflows = inps.Min();
             int ilevel = 0;
             writer.WriteLine($"  Total {inps.Count} levels:");
-            foreach (var level in levels)
+            foreach (var _level in levels)
             {
                 writer.Write($"    Level {ilevel}, flows = {inps[ilevel]}: ");
                 ilevel++;
-                var first = true;
-                foreach (var n in level)
+                var firstline = true;
+                foreach (var n in _level)
                 {
-                    if (!first) writer.Write(", ");
+                    if (!firstline) writer.Write(", ");
                     writer.Write(
                         $"{n.Name} (IN:{n.InCapacity}, OUT:{n.OutCapacity}, DELTA:{n.DeltaCapacity})");
-                    first = false;
+                    firstline = false;
                 }
                 writer.WriteLine();
             }

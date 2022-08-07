@@ -26,10 +26,10 @@ public class MaxFlowsProblemResolver : ProblemSolver
             if (!Nodes.TryGetValue((end_name ??= Nodes.Last().Key), out var end))
                 end = Nodes.Last().Value;
 
-            var loops = this.BreakLoops(start, names);
+            var loops = this.ReverseLoops(start, names);
             if (loops > 0)
             {
-                writer.WriteLine($"    Found {loops} loop(s), and being broken up!");
+                writer.WriteLine($"    Found {loops} loop(s), and they're now reversed!");
             }
 
             //first capacity is calculated backwards
@@ -101,7 +101,9 @@ public class MaxFlowsProblemResolver : ProblemSolver
                     });
                 }
             }
-            var inps = new List<int>(levels.Select(l=>l.Sum(n=>n.InCapacity)));
+            var inps = new List<int>(levels.Select(l => l.Sum(n => n.InCapacity)));
+
+            var deltas = new HashLookups<int, int>();
             //NOTICE: only focus on nodes with DeltaCapacity<0
             //and substract the delta from the previous level.
             //BTW, first and last nodes are not necessory to be considerred.
@@ -114,13 +116,33 @@ public class MaxFlowsProblemResolver : ProblemSolver
                 //because finally we need the min value (capacity) of all bottle necks.
                 //Any previous bottle neck which is wider (more capacity)
                 //we just let it be,
-                //If narrower, it's affected by its previous pipes only,
-                //therefore no need to back-propagate.
                 if (delta < 0)
                 {
-                    inps[i - 1] += delta;
+                    //delta<0
+                    //keep index and possible delta
+                    var p = i - 1;
+                    deltas.Add(p, delta);
+                    var top = inps[p] + delta; 
+                    while(p-->0)
+                    {
+                        if (top < inps[p])
+                        {
+                            //FIXED:
+                            //we should always keep the influnce
+                            //of the post-levels
+                            //and when we need to apply,
+                            //we use the max value (or min value for negative 
+                            deltas.Add(p, (top - inps[p]));
+                        }
+                    }
                 }
             }
+            //apply for subs (adding minus value)
+            foreach(var t in deltas)
+            {
+                inps[t.Key] += t.Value.Min();  
+            }
+
             //find the narrowest part of the flow stream and get the flow value
             var maxflows = inps.Min();
             int ilevel = 0;

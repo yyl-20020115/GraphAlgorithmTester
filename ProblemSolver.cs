@@ -207,4 +207,58 @@ public abstract class ProblemSolver
         return count;
 
     }
+    protected int ReverseLoops(SNode start, HashSet<string> names, List<SEdge> brokens = null)
+    {
+        int count = 0;
+        var paths = new List<Path>();
+        var solutions = new List<Path>();
+
+        var outs = this.Edges.Where(e => e.O == start).ToList();
+        foreach (var _out in outs)
+        {
+            paths.Add(new Path(start, _out.T)
+            {
+                NodeCopies = new() { start.Copy(), _out.T.Copy() }
+            });
+        }
+
+        //find and break loops
+        int step = 0;
+        while (step++ < names.Count)
+        {
+            paths.RemoveAll(p => p.Nodes.Count <= step || p.IsPreTerminated(names));
+            foreach (var _path in paths.ToArray())
+            {
+                var current = _path.End;
+                foreach (var _out in this.Edges.Where(e => e.O == current).ToArray())
+                {
+                    var se = _out;
+                    var sn = _out.T;
+                    if (_path.HasVisited(sn))
+                    {
+                        count++;
+                        //found a loop
+                        //remove this edge
+                        this.Edges.Remove(_out);
+                        //if there is no reversed one, add it
+                        if(!Edges.Any(e=>e.O==_out.T && e.T == _out.O))
+                        {
+                            this.Edges.Add(_out.Reverse());
+                        }
+                        brokens?.Add(_out);
+                    }
+                    else
+                    {
+                        var branch = _path.Copy();
+                        var snode = sn.Copy();
+                        branch.Nodes.Add(sn);
+                        branch.NodeCopies.Add(snode);
+                        paths.Add(branch);
+                    }
+                }
+            }
+        }
+        return count;
+
+    }
 }
