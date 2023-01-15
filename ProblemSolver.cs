@@ -4,7 +4,7 @@ using System.IO;
 using System.Linq;
 
 namespace GraphAlgorithmTester;
-
+ 
 public abstract class ProblemSolver
 {
     public SortedDictionary<string, SNode> Nodes = new();

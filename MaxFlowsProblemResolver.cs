@@ -25,7 +25,7 @@ public class MaxFlowsProblemResolver : ProblemSolver
             //last is out
             if (!Nodes.TryGetValue((end_name ??= Nodes.Last().Key), out var end))
                 end = Nodes.Last().Value;
-
+             
             var loops = this.ReverseLoops(start, names);
             if (loops > 0)
             {
