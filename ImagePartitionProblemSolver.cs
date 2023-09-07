@@ -238,15 +238,6 @@ public class ImagePartitionProblemSolver : ProblemSolver
         }
     }
 
-    protected (int ws, int hs) Factor(int count)
-    {
-        int r = (int)Math.Sqrt(count);
-        for (int i = r; i >= 2; i--)
-        {
-            if (count % i == 0) return (count / i, i);
-        }
-        return (count, 1);
-    }
     public override void Solve(TextWriter writer, string start_name = null, string end_name = null)
     {
         var fn = "Partition.png";
@@ -255,15 +246,10 @@ public class ImagePartitionProblemSolver : ProblemSolver
         int w = bitmap.Width;
         int h = bitmap.Height;
 
-        if (w == 0 || h == 0)
-        {
+        if (w == 0 || h == 0) return;
 
-            return;
-        }
-
-        using var direct = new DirectBitmap(w, h);
-
-        using (var g = Graphics.FromImage(direct.Bitmap))
+        using var direct_bitmap = new DirectBitmap(w, h);
+        using (var g = Graphics.FromImage(direct_bitmap.Bitmap))
         {
             g.DrawImage(bitmap, new System.Drawing.Point(0, 0));
         }
@@ -289,7 +275,7 @@ public class ImagePartitionProblemSolver : ProblemSolver
             segments.Add((sub, x0, w0, i)); 
         }
         segments.AsParallel().ForAll(
-            (a) => this.SolveBlock(direct, a.sub, a.x0, 0, a.w0, h, a.i == cpus - 1));
+            (a) => this.SolveBlock(direct_bitmap, a.sub, a.x0, 0, a.w0, h, a.i == cpus - 1));
 
         foreach(var sub in subs)
         {
@@ -308,14 +294,12 @@ public class ImagePartitionProblemSolver : ProblemSolver
         {
             using var g2 = Graphics.FromImage(bitmap);
             //here we get all regions
+            //draw the region borders
             foreach (var region in regions)
             {
                 var path = region.GetBorderPath();
                 var pen = new Pen(Color.White, 1.0f);
-                //foreach (var p in region.Points)
-                //{
-                //    bitmap.SetPixel(p.X, p.Y, path.InvertColor);
-                //}
+
                 if (path.Points.Count > 0)
                 {
                     var pt = default(Point);

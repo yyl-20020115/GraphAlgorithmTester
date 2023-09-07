@@ -7,6 +7,7 @@ public static class Program
 {
     public static void Main(string[] args)
     {
+        var mc = GraphAlgorithmTester.Colors.Convert.MaxColorDistance;
         Environment.CurrentDirectory += "..\\..\\..\\..\\data\\";
 
         var traveller = new TravellerProblemSolver();

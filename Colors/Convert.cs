@@ -506,14 +506,27 @@ public static class Convert
         double fx = fy + (a / 500.0);
         double fz = fy - (b / 200.0);
 
-        return new CIEXYZ(
-            (fx > delta) ? CIEXYZ.D65.X * (fx * fx * fx) : (fx - 16.0 / 116.0) * 3 * (
-                delta * delta) * CIEXYZ.D65.X,
+        if ((fx > delta))
+        {
+            return new CIEXYZ(
+            (double)(CIEXYZ.D65.X * (fx * fx * fx)),
             (fy > delta) ? CIEXYZ.D65.Y * (fy * fy * fy) : (fy - 16.0 / 116.0) * 3 * (
                 delta * delta) * CIEXYZ.D65.Y,
             (fz > delta) ? CIEXYZ.D65.Z * (fz * fz * fz) : (fz - 16.0 / 116.0) * 3 * (
                 delta * delta) * CIEXYZ.D65.Z
             );
+        }
+        else
+        {
+            return new CIEXYZ(
+            (double)((fx - 16.0 / 116.0) * 3 * (
+                delta * delta) * CIEXYZ.D65.X),
+            (fy > delta) ? CIEXYZ.D65.Y * (fy * fy * fy) : (fy - 16.0 / 116.0) * 3 * (
+                delta * delta) * CIEXYZ.D65.Y,
+            (fz > delta) ? CIEXYZ.D65.Z * (fz * fz * fz) : (fz - 16.0 / 116.0) * 3 * (
+                delta * delta) * CIEXYZ.D65.Z
+            );
+        }
     }
     /// <summary>
     /// Converts CIELab to RGB.
